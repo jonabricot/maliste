@@ -13,6 +13,7 @@ import ButtonLoading from '@/components/Ui/ButtonLoading'
 import ModalListProvider from '@/components/Ui/ModalListProvider'
 import LinkExternal from '@/components/Typography/LinkExternal'
 import Separator from '@/components/Typography/Separator'
+import Box from '@/components/Layout/Box'
 
 type EntityListProps = {
     entity: EntityListItem, 
@@ -74,7 +75,7 @@ export default function ItemViewDefault({ entity, onProvider, forceProvider = fa
 
     return <Card css={{ position: 'relative', overflow: 'hidden', opacity: localEntity.provider === null ? 1 : 0.5 }} shadow="normal" padding="large">
         <div>{localEntity.label}</div>
-        <div><LinkExternal href={localEntity.link}>{localEntity.link}</LinkExternal></div>
+        <Box css={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}><LinkExternal href={localEntity.link} target="_blank">{localEntity.link}</LinkExternal></Box>
         <Separator />
         <Grid fluid={true}>
             {localEntity.provider === null ? <ButtonLoading onClick={attachProvider} loading={loading} radius="pill">Je le prend !</ButtonLoading> : <div>{localEntity.provider} s'en occupe</div>}

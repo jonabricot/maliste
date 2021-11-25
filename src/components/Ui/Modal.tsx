@@ -1,7 +1,6 @@
 import { styled } from '@/stitches.config'
 import ReactDOM from 'react-dom'
 import Card from '@/components/Ui/Card'
-import { useEffect, useState } from 'react'
 
 const StyledModalWrapper = styled('div', {
     position: 'fixed',

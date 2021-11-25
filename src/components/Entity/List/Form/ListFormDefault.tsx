@@ -2,7 +2,6 @@ import React, { useEffect } from 'react'
 import { useState } from "react"
 import { EntityList, EntityListItem } from '@/types/app'
 import ItemFormDefault from '@/components/Entity/Item/Form/ItemFormDefault'
-import { client } from '@/data/client'
 import Modal from '@/components/Ui/Modal'
 import Button from '@/components/Ui/Button'
 import { useNavigate } from "react-router-dom";
@@ -12,6 +11,7 @@ import Title from '@/components/Typography/Title'
 import Grid from '@/components/Layout/Grid'
 import Cell from '@/components/Layout/Cell'
 import Box from '@/components/Layout/Box'
+import { EntityManagerList } from '@/data/EntityManagerList'
 
 type EntityListProps = {
   entity: EntityList
@@ -20,11 +20,13 @@ type EntityListProps = {
 export default function ListFormDefault({ entity }: EntityListProps) {
   const [loading, setLoading] = useState(false)
   const [label, setLabel] = useState(entity.label)
+  const [personal, setPersonal] = useState(entity.personal)
   const [items, setItems] = useState([])
   const [editItem, setEditItem] = useState(null)
   const [newItem, showNewItem] = useState(false)
   const [providers, setProviders] = useState(entity.providers ?? [])
   const navigate = useNavigate()
+  console.log(entity)
 
   useEffect(async () => {
     await loadItems()
@@ -32,21 +34,15 @@ export default function ListFormDefault({ entity }: EntityListProps) {
   
   async function handleSubmit(e) {
     e.preventDefault()
-    const { data, error } = await client
-      .from('list')
-      .update({ label, providers })
-      .eq('id', entity.id)
+
+    const { data, error } = await new EntityManagerList().update(entity.id, { label, providers })
     
     navigate(`/entity/list/${entity.id}`)
   }
 
   async function loadItems() {
     setLoading(true)
-    const { data, error } = await client
-      .from('item')
-      .select()
-      .eq('list_id', entity.id)
-      .order('created_at')
+    const { data, error } = await new EntityManagerList().loadItems(localEntity.id)
 
     if(data) {
       setItems(data)
@@ -73,6 +69,7 @@ export default function ListFormDefault({ entity }: EntityListProps) {
       <Grid css={{ gridTemplateColumns: '1fr' }}>
       <Title>List edition</Title>
 
+      <Input label="Personal list (you will not be able to participate)" type="checkbox" defaultValue={personal}/>
       <Input label="Name" onInput={e => setLabel(e.target.value)} defaultValue={label}/>
 
       <Grid>

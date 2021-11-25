@@ -1,22 +1,19 @@
-import React, { useEffect } from 'react'
+import { useEffect } from 'react'
 import { useState } from "react"
-import { EntityList, EntityListItem } from '@/types/app'
-import { client } from '@/data/client'
-import ItemViewDefault from '@/components/Entity/Item/View/ItemViewDefault'
+import { EntityList } from '@/types/app'
 import UserService from '@/services/UserService'
 import Container from '@/components/Layout/Container'
 import Box from '@/components/Layout/Box'
 import Title from '@/components/Typography/Title'
 import Grid from '@/components/Layout/Grid'
 import Cell from '@/components/Layout/Cell'
-import Button from '@/components/Ui/Button'
 import Link from '@/components/Typography/Link'
-import ModalListProvider from '@/components/Ui/ModalListProvider'
-import Paragraph from '@/components/Typography/Paragraph'
 import ButtonLoading from '@/components/Ui/ButtonLoading'
 import { v4 } from 'uuid'
 import Modal from '@/components/Ui/Modal'
 import Input from '@/components/Ui/Form/Input'
+import ItemViewDefault from '@/components/Entity/Item/View/ItemViewDefault'
+import { EntityManagerList } from '@/data/EntityManagerList'
 
 type EntityListProps = {
   entity: EntityList
@@ -31,36 +28,17 @@ export default function ListViewDefault({ entity }: EntityListProps) {
   const [items, setItems] = useState([])
 
   useEffect(async () => {
-    const { data, error } = await client
-      .from('item')
-      .select()
-      .eq('list_id', localEntity.id)
+    const { data, error } = await new EntityManagerList().loadItems(localEntity.id)
     if (data) {
       setItems(data)
     }
   }, [])
 
   async function reloadEntity() {
-    const { data, error } = await client
-      .from('list')
-      .select()
-      .eq('id', localEntity.id)
-      .single()
+    const { data, error } = await new EntityManagerList().find(localEntity.id)
     if (data) {
       setLocalEntity(data)
     }
-  }
-
-  function handleItemProvider(id) {
-    setShowProviders(true)
-    setForceProvider(id)
-  }
-
-  function handleCloseProvider(id) {
-    setShowProviders(false)
-    setTimeout(() => {
-      setForceProvider(null)
-    }, 100)
   }
 
   async function handleShare() {
@@ -69,7 +47,7 @@ export default function ListViewDefault({ entity }: EntityListProps) {
     }
     else {
       setShareLoading(true)
-      await client.from('list').update([{ share: v4() }]).eq('id', localEntity.id)
+      await new EntityManagerList.update(localEntity.id, { share: v4() })
       await reloadEntity()
       handleShare()
       setShareLoading(false)
@@ -79,31 +57,22 @@ export default function ListViewDefault({ entity }: EntityListProps) {
   return (
     <Container>
       <Grid fluid css={{ alignItems: 'center' }}>
-        <Title css={{ flex: 1 }}>{localEntity.label}</Title>
+        <Box css={{ display: 'flex', flex: 1, gap: '$normal', alignItems: 'center' }}>
+          <Title >{localEntity.label}</Title>
+          <Link to={`/entity/list/${localEntity.id}/edit`}>Edit</Link>
+        </Box>
         <div>
           {localEntity.user === UserService.getUser() && <ButtonLoading onClick={handleShare} loading={shareLoading}>Partager ma liste</ButtonLoading>}
         </div>
       </Grid>
-      {UserService.hasProvider(localEntity.id) && <Paragraph>Salut {UserService.getProvider(localEntity.id)}. </Paragraph>}
       <Grid>
         {items.map(item => <Cell size={2} key={item.id}>
-          <ItemViewDefault 
-            entity={item} 
-            onProvider={() => handleItemProvider(item.id)} 
-            forceProvider={showProviders === false && forceProvider === item.id} 
+          <ItemViewDefault
+            entity={item}
           />
         </Cell>)}
-        <Cell>
-          <Button theme="link" padding="none" onClick={() => setShowProviders(true)}>
-            {
-              UserService.hasProvider(localEntity.id) ?
-                <span>Je ne suis pas {UserService.getProvider(localEntity.id)}...</span> :
-                <span>Qui est-tu ?</span>
-            }
-          </Button>
-        </Cell>
       </Grid>
-      <ModalListProvider id={localEntity.id} open={showProviders} onClose={handleCloseProvider} />
+
       <Modal open={showShare} onClose={() => setShowShare(false)}>
         <Grid>
           <Cell>

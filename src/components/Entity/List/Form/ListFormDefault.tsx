@@ -42,7 +42,7 @@ export default function ListFormDefault({ entity }: EntityListProps) {
 
   async function loadItems() {
     setLoading(true)
-    const { data, error } = await new EntityManagerList().loadItems(localEntity.id)
+    const { data, error } = await new EntityManagerList().loadItems(entity.id)
 
     if(data) {
       setItems(data)

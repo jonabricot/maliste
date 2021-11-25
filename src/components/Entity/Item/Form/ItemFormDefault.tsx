@@ -1,7 +1,7 @@
 import Grid from "@/components/Layout/Grid";
 import ButtonLoading from "@/components/Ui/ButtonLoading";
 import Input from "@/components/Ui/Form/Input";
-import { client } from "@/data/client";
+import { EntityManager } from "@/data/EntityManager";
 import { EntityListItem } from "@/types/app";
 import { useState } from "react";
 
@@ -19,19 +19,10 @@ export default function ItemFormDefault({ entity, onEnd }: EntityItemProps) {
         setLoading(true)
         e.preventDefault()
         if (entity.id) {
-            const { data, error } = await client
-                .from('item')
-                .update([
-                    { label, link, list_id: entity.list_id }
-                ])
-                .eq('id', entity.id)
+            const { data, error } = await new EntityManager('item').update(entity.id, { label, link, list_id: entity.list_id })
         }
         else {
-            const { data, error } = await client
-                .from('item')
-                .insert([
-                    { label, link, list_id: entity.list_id }
-                ])
+            const { data, error } = await new EntityManager('item').create({ label, link, list_id: entity.list_id, providers: [] })
         }
         onEnd()
         setLoading(false)

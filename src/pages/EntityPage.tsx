@@ -1,10 +1,10 @@
-import ListViewDefault from "@/components/Entity/List/View/ListViewDefault"
-import ItemViewDefault from "@/components/Entity/Item/View/ItemViewDefault"
 import { client } from "@/data/client"
 import React, { useEffect, useState } from "react"
 import { useParams } from "react-router"
 import LayoutBase from "@/components/Layout/LayoutBase"
 import UserService from "@/services/UserService"
+import ListViewDefault from "@/components/Entity/List/View/ListViewDefault"
+import ItemViewDefault from "@/components/Entity/Item/View/ItemViewDefault"
 
 export default function EntityPage() {
     const [entity, setEntity] = useState(null)

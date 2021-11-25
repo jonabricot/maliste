@@ -1,5 +1,4 @@
 import { styled } from "@/stitches.config";
-import Box from "@/components/Layout/Box";
 
 const StyledCell = styled('div', {
     gridColumn: `span $$size`,

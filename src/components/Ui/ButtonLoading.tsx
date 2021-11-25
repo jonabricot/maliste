@@ -1,5 +1,5 @@
 import { keyframes, styled } from "@/stitches.config"
-import { Component1Icon } from "@radix-ui/react-icons"
+import { DotFilledIcon } from "@radix-ui/react-icons"
 import Button from "./Button"
 
 const StyledButtonLoading = styled(Button, {
@@ -13,7 +13,7 @@ const StyledContent = styled('span', {
         loading: {
             true: {
                 opacity: 0,
-                transform: 'translateY(-10px)',
+                transform: 'translateY(10px)',
             }
         }
     }
@@ -24,6 +24,13 @@ const rotate = keyframes({
     'to': { transform: 'rotate(360deg)' },
 });
 
+const appear = keyframes({
+    '0%': { opacity: '0', transform: 'scale(0.5)' },
+    '33%': { opacity: '1', transform: 'scale(1)' },
+    '66%': { opacity: '1', transform: 'scale(1)' },
+    '100%': { opacity: '0', transform: 'scale(0.5)' }
+});
+
 const StyledLoader = styled('div', {
     $$offset: '10px',
     position: 'absolute',
@@ -32,6 +39,8 @@ const StyledLoader = styled('div', {
     transition: 'all .3s ease',
     transform: 'translate(-50%, calc(-50% + $$offset))',
     pointerEvents: 'none',
+    display: 'flex',
+    gap: '$$offset',
     opacity: 0,
     variants: {
         loading: {
@@ -43,15 +52,27 @@ const StyledLoader = styled('div', {
     }
 })
 
-const LoadingIcon = styled(Component1Icon, {
-    animation: `${rotate} linear infinite 1s`,
+const LoadingIcon = styled(DotFilledIcon, {
+    animation: `${appear} ease infinite 1s`,
+    variants: {
+        position: {
+            second: {
+                animationDelay: '.2s'
+            },
+            third: {
+                animationDelay: '.4s'
+            }
+        }
+    }
 })
 
 export default function ButtonLoading({loading = false, children, ...props}) {
     return <StyledButtonLoading disabled={loading} {...props}>
         <StyledContent loading={loading}>{children}</StyledContent>
         <StyledLoader loading={loading}>
-            <LoadingIcon/>
+            <LoadingIcon />
+            <LoadingIcon position='second' />
+            <LoadingIcon position='third' />
         </StyledLoader>
     </StyledButtonLoading>
 }

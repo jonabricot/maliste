@@ -1,9 +1,8 @@
-import ListViewDefault from "@/components/Entity/List/View/ListViewDefault"
-import ItemViewDefault from "@/components/Entity/Item/View/ItemViewDefault"
 import { client } from "@/data/client"
-import React, { useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import { useParams } from "react-router"
 import LayoutBase from "@/components/Layout/LayoutBase"
+import ListViewShare from "@/components/Entity/List/View/ListViewShare"
 
 export default function SharedListPage() {
     const [entity, setEntity] = useState(null)
@@ -22,6 +21,6 @@ export default function SharedListPage() {
     }, [])
 
     return <LayoutBase>
-        {entity ? <ListViewDefault entity={entity} /> : 'loading'}
+        {entity ? <ListViewShare entity={entity} /> : 'loading'}
     </LayoutBase>
 }

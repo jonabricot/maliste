@@ -1,6 +1,3 @@
-import { styled } from '@/stitches.config'
-import ReactDOM from 'react-dom'
-import Card from '@/components/Ui/Card'
 import { useEffect, useState } from 'react'
 import Modal from './Modal'
 import Title from '../Typography/Title'

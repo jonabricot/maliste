@@ -9,11 +9,11 @@ const StyledInput = styled('input', {
     padding: '.5em .75em'
 })
 
-export default function Input({label, ...props}) {
+export default function Input({type = "text", label, ...props}) {
     return <div>
         <label>
             <div>{label}</div>
-            <StyledInput type="text" {...props} />
+            <StyledInput type={type} {...props} />
         </label>
     </div>
 }

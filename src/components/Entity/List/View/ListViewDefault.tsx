@@ -11,9 +11,9 @@ import Link from '@/components/Typography/Link'
 import ButtonLoading from '@/components/Ui/ButtonLoading'
 import { v4 } from 'uuid'
 import Modal from '@/components/Ui/Modal'
-import Input from '@/components/Ui/Form/Input'
 import ItemViewDefault from '@/components/Entity/Item/View/ItemViewDefault'
 import { EntityManagerList } from '@/data/EntityManagerList'
+import Card from '@/components/Ui/Card'
 
 type EntityListProps = {
   entity: EntityList
@@ -23,8 +23,6 @@ export default function ListViewDefault({ entity }: EntityListProps) {
   const [localEntity, setLocalEntity] = useState(entity)
   const [shareLoading, setShareLoading] = useState(false)
   const [showShare, setShowShare] = useState(false)
-  const [showProviders, setShowProviders] = useState(false)
-  const [forceProvider, setForceProvider] = useState(null)
   const [items, setItems] = useState([])
 
   useEffect(async () => {
@@ -34,24 +32,21 @@ export default function ListViewDefault({ entity }: EntityListProps) {
     }
   }, [])
 
-  async function reloadEntity() {
-    const { data, error } = await new EntityManagerList().find(localEntity.id)
-    if (data) {
-      setLocalEntity(data)
-    }
-  }
-
-  async function handleShare() {
-    if (localEntity.share !== null) {
+  useEffect(async () => {
+    if (localEntity.share === null && showShare === true) {
+      setShowShare(false)
+      setShareLoading(true)
+      const {data, error} = await new EntityManagerList().update(localEntity.id, { share: v4() })
+      if (data) {
+        setLocalEntity(data)
+      }
+      setShareLoading(false)
       setShowShare(true)
     }
-    else {
-      setShareLoading(true)
-      await new EntityManagerList.update(localEntity.id, { share: v4() })
-      await reloadEntity()
-      handleShare()
-      setShareLoading(false)
-    }
+  }, [localEntity, showShare])
+
+  async function handleShare() {
+    setShowShare(true)
   }
 
   return (
@@ -59,7 +54,7 @@ export default function ListViewDefault({ entity }: EntityListProps) {
       <Grid fluid css={{ alignItems: 'center' }}>
         <Box css={{ display: 'flex', flex: 1, gap: '$normal', alignItems: 'center' }}>
           <Title >{localEntity.label}</Title>
-          <Link to={`/entity/list/${localEntity.id}/edit`}>Edit</Link>
+          {localEntity.user === UserService.getUser() && <Link to={`/entity/list/${localEntity.id}/edit`}>Edit</Link>}
         </Box>
         <div>
           {localEntity.user === UserService.getUser() && <ButtonLoading onClick={handleShare} loading={shareLoading}>Partager ma liste</ButtonLoading>}
@@ -75,9 +70,10 @@ export default function ListViewDefault({ entity }: EntityListProps) {
 
       <Modal open={showShare} onClose={() => setShowShare(false)}>
         <Grid>
+          <Cell>Partage ce lien à qui tu veux !</Cell>
           <Cell>
-            <Input disabled label="Partage ce lien à qui tu veux !" defaultValue={`${window.location.protocol}//${window.location.host}/share/${localEntity.share}`} />
-            </Cell>
+            <Card theme="active">{`${window.location.protocol}//${window.location.host}/share/${localEntity.share}`}</Card>
+          </Cell>
         </Grid>
       </Modal>
     </Container>

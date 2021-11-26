@@ -3,7 +3,9 @@ export type EntityList = {
     label: string,
     items: EntityListItem[],
     personal: Boolean,
-    providers: string[]
+    providers: string[],
+    share: string,
+    user: string
 }
 
 export type EntityListItem = {

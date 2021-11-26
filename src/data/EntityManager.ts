@@ -23,7 +23,7 @@ class EntityManager {
     }
 
     async update(id: string, data: object) {
-        return await this.client.from(this.entityType).update([data]).eq('id', id)
+        return await this.client.from(this.entityType).update([data]).eq('id', id).single()
     }
 }
 

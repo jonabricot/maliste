@@ -7,11 +7,11 @@ import Title from '@/components/Typography/Title'
 import Grid from '@/components/Layout/Grid'
 import Cell from '@/components/Layout/Cell'
 import Button from '@/components/Ui/Button'
-import Link from '@/components/Typography/Link'
 import ModalListProvider from '@/components/Ui/ModalListProvider'
 import Paragraph from '@/components/Typography/Paragraph'
 import ItemViewShare from '@/components/Entity/Item/View/ItemViewShare'
 import { EntityManagerList } from '@/data/EntityManagerList'
+import LinkInternal from '@/components/Typography/LinkInternal'
 
 type EntityListProps = {
   entity: EntityList
@@ -47,7 +47,7 @@ export default function ListViewShare({ entity }: EntityListProps) {
       <Paragraph>
         Non mais ca va pas oh ! Tu crois qu'on va te montrer tous tes cadeaux ou quoi ? Bah non
       </Paragraph>
-      <Link to={'/'}>Retourne à l'accueil, coquin !</Link>
+      <LinkInternal to={'/'}>Retourne à l'accueil, coquin !</LinkInternal>
     </Container>
   }
 

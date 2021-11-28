@@ -8,6 +8,11 @@ const StyledParagraph = styled('p', {
                 fontSize: '$normal',
             },
         },
+        muted: {
+            true: {
+                opacity: 0.5
+            }
+        }
     },
     defaultVariants: {
         size: 'normal'

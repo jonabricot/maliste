@@ -1,21 +1,5 @@
-import { styled } from "@/stitches.config";
-import { Link as ReactLink } from "react-router-dom"
+import Button from "@/components/Ui/Button";
 
-export const linkStyle = {
-    color: '$normal',
-    textDecoration: 'underline',
-    cursor: 'pointer',
-    variants: {
-        muted: {
-            true: {
-                opacity: 0.5
-            }
-        }
-    }
-}
-
-const StyledLink = styled(ReactLink, linkStyle)
-
-export default function Link({children, ...props}) {
-    return <StyledLink {...props}>{children}</StyledLink>
+export default function Link({theme = 'link', padding = 'none', children, ...props}) {
+    return <Button as="a" theme={theme} padding={padding} {...props}>{children}</Button>
 }

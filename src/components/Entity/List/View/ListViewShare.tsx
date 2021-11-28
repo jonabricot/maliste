@@ -55,7 +55,7 @@ export default function ListViewShare({ entity }: EntityListProps) {
     <Grid fluid css={{ alignItems: 'center' }}>
       <Title css={{ flex: 1 }}>{localEntity.label}</Title>
     </Grid>
-    {UserService.hasProvider(localEntity.id) && <Paragraph>Salut {UserService.getProvider(localEntity.id)}. </Paragraph>}
+    {UserService.hasProvider(localEntity.id) && <Paragraph>Salut {UserService.getProvider(localEntity.id)} !</Paragraph>}
     <Grid>
       {items.map(item => <Cell size={2} key={item.id}>
         <ItemViewShare
@@ -69,7 +69,7 @@ export default function ListViewShare({ entity }: EntityListProps) {
           {
             UserService.hasProvider(localEntity.id) ?
               <span>Je ne suis pas {UserService.getProvider(localEntity.id)}...</span> :
-              <span>Qui est-tu ?</span>
+              <span>Qui es-tu ?</span>
           }
         </Button>
       </Cell>

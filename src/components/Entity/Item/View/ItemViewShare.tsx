@@ -5,7 +5,6 @@ import Card from '@/components/Ui/Card'
 import { client } from '@/data/client'
 import ButtonLoading from '@/components/Ui/ButtonLoading'
 import ModalListProvider from '@/components/Ui/ModalListProvider'
-import LinkExternal from '@/components/Typography/LinkExternal'
 import Separator from '@/components/Typography/Separator'
 import Box from '@/components/Layout/Box'
 import Ellipsis from '@/components/Typography/Ellipsis'
@@ -13,6 +12,7 @@ import { useProvider, useUser } from '@/hooks/currentUser'
 import { EntityManager } from '@/data/EntityManager'
 import { Transition } from '@/components/Ui/Transition'
 import Flex from '@/components/Layout/Flex'
+import Link from '@/components/Typography/Link'
 
 type EntityListProps = {
     entity: EntityListItem, 
@@ -53,9 +53,9 @@ export default function ItemViewShare({ entity, onProvider, forceProvider = fals
         }
 
         setLoading(true)
-        let result = await new EntityManager('item').update(localEntity.id, { providers: [...localEntity.providers, provider] })
-        if (result.data) {
-            setLocalEntity(result.data[0])
+        const {data, error} = await new EntityManager('item').update(localEntity.id, { providers: [...localEntity.providers, provider] })
+        if (data) {
+            setLocalEntity(data)
         }
         setLoading(false)
     }
@@ -67,10 +67,11 @@ export default function ItemViewShare({ entity, onProvider, forceProvider = fals
         if (providerIndex !== -1) {
             newProviders.splice(providerIndex, 1)
         }
-        let result = await new EntityManager('item').update(localEntity.id, { providers: newProviders })
+        
+        const { data, error } = await new EntityManager('item').update(localEntity.id, { providers: newProviders })
 
-        if (result.data) {
-            setLocalEntity(result.data[0])
+        if (data) {
+            setLocalEntity(data)
         }
         setLoading(false)
     }
@@ -85,7 +86,7 @@ export default function ItemViewShare({ entity, onProvider, forceProvider = fals
 
     return <Card css={{ position: 'relative', overflow: 'hidden' }} theme={localEntity.providers.length === 0 ? 'normal' : 'active'} shadow="normal" padding="large">
         <div>{localEntity.label}</div>
-        <Ellipsis><LinkExternal href={localEntity.link} target="_blank">{localEntity.link}</LinkExternal></Ellipsis>
+        <Ellipsis><Link href={localEntity.link} target="_blank">{localEntity.link}</Link></Ellipsis>
         <Separator/>
         <Flex css={{ flexDirection: 'column', alignItems: 'center', gap: '$normal' }}>
             {localEntity.providers.length > 0 && <div>{localEntity.providers.join(', ')} {localEntity.providers.length === 1 ? "s'en occupe" : "s'en occupent"}</div>}

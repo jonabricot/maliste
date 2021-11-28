@@ -7,13 +7,13 @@ import Box from '@/components/Layout/Box'
 import Title from '@/components/Typography/Title'
 import Grid from '@/components/Layout/Grid'
 import Cell from '@/components/Layout/Cell'
-import Link from '@/components/Typography/Link'
 import ButtonLoading from '@/components/Ui/ButtonLoading'
 import { v4 } from 'uuid'
 import Modal from '@/components/Ui/Modal'
 import ItemViewDefault from '@/components/Entity/Item/View/ItemViewDefault'
 import { EntityManagerList } from '@/data/EntityManagerList'
 import Card from '@/components/Ui/Card'
+import LinkInternal from '@/components/Typography/LinkInternal'
 
 type EntityListProps = {
   entity: EntityList
@@ -54,7 +54,7 @@ export default function ListViewDefault({ entity }: EntityListProps) {
       <Grid fluid css={{ alignItems: 'center' }}>
         <Box css={{ display: 'flex', flex: 1, gap: '$normal', alignItems: 'center' }}>
           <Title >{localEntity.label}</Title>
-          {localEntity.user === UserService.getUser() && <Link to={`/entity/list/${localEntity.id}/edit`}>Edit</Link>}
+          {localEntity.user === UserService.getUser() && <LinkInternal to={`/entity/list/${localEntity.id}/edit`}>Edit</LinkInternal>}
         </Box>
         <div>
           {localEntity.user === UserService.getUser() && <ButtonLoading onClick={handleShare} loading={shareLoading}>Partager ma liste</ButtonLoading>}

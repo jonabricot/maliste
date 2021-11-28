@@ -8,12 +8,13 @@ const globalStyles = globalCss({
   '*': { margin: 0, padding: 0, boxSizing: 'border-box', lineHeight: 1.2 },
   body: {
     fontFamily: '$normal',
-    backgroundColor: '$background',
+    background: '$background',
     color: '$text',
     fontSize: '$root',
   },
   'html, body, #root': {
-    height: '100%'
+    height: '100%',
+    overflow: 'auto'
   }
   // '@import': ['https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;700&display=swap'],
 });

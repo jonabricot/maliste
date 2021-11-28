@@ -48,7 +48,7 @@ export const {
   theme: {
     colors: {
       ...nordColors,
-      background: nordColors.nord_0,
+      background: '$nord_0',
       foreground: nordColors.nord0,
       active: nordColors.nord2,
       text: nordColors.nord6,

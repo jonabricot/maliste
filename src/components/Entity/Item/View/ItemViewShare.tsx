@@ -92,7 +92,7 @@ export default function ItemViewShare({ entity, onProvider, forceProvider = fals
             {localEntity.providers.length > 0 && <div>{localEntity.providers.join(', ')} {localEntity.providers.length === 1 ? "s'en occupe" : "s'en occupent"}</div>}
             <Box css={{ position: 'relative', whiteSpace: 'nowrap' }}>
                 <Transition animate={!hasProvider}>
-                    <ButtonLoading onClick={attachProvider} loading={loading} radius="pill">Je le prend !</ButtonLoading>
+                    <ButtonLoading onClick={attachProvider} loading={loading} radius="pill">Je le prends !</ButtonLoading>
                 </Transition>
                 <Box css={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', pointerEvents: 'none' }}>
                     <Transition animate={hasCurrentProvider}>

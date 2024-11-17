@@ -16,7 +16,7 @@ export default function ModalListProvider({id, open, onClose, ...props}) {
             .select()
             .eq('id', id)
             .single()
-        if (data) {
+        if (data && data.providers) {
             setProviders(data.providers)
         }
     }, [])

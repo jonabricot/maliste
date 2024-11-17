@@ -27,24 +27,26 @@ export default function ItemViewShare({ entity, onProvider, forceProvider = fals
     const [localEntity, setLocalEntity] = useState(entity)
     const [provider] = useProvider(localEntity.list_id)
 
+    console.log(localEntity)
+
     useEffect(() => {
         if (forceProvider) {
             attachProvider()
         }
     }, [forceProvider])
 
-    useEffect(() => {
-        const mySubscription = client
-            .from(`item:id=eq.${localEntity.id}`)
-            .on('UPDATE', payload => {
-                setLocalEntity(payload.new)
-            })
-            .subscribe()
+    // useEffect(() => {
+    //     const mySubscription = client
+    //         .from(`item:id=eq.${localEntity.id}`)
+    //         .on('UPDATE', payload => {
+    //             setLocalEntity(payload.new)
+    //         })
+    //         .subscribe()
 
-        return () => {
-            client.removeSubscription(mySubscription)
-        }
-    }, [localEntity])
+    //     return () => {
+    //         client.removeSubscription(mySubscription)
+    //     }
+    // }, [localEntity])
 
     async function attachProvider() {
         if (!provider) {

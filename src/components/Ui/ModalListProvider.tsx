@@ -27,7 +27,7 @@ export default function ModalListProvider({id, open, onClose, ...props}) {
     }
 
     return <Modal open={open} onClose={onClose} {...props}>
-        <Title size="big">Qui est-tu ?</Title>
+        <Title size="big">Qui es-tu ?</Title>
         <Grid css={{ textAlign: 'center' }}>
             {providers.map((provider, index) => <Cell key={index}><Button theme="link" onClick={() => setProvider(provider)}>{provider}</Button></Cell>)}
         </Grid>

@@ -26,7 +26,7 @@ export default function ListViewShare({ entity }: EntityListProps) {
   useEffect(async () => {
     const { data, error } = await new EntityManagerList().loadItems(localEntity.id)
     if (data) {
-      setItems(data)
+      setItems(data.map(item => ({...item, providers: JSON.parse(item.providers)})))
     }
   }, [])
 

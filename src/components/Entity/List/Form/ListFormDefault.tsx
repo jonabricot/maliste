@@ -24,7 +24,7 @@ export default function ListFormDefault({ entity }: EntityListProps) {
   const [items, setItems] = useState([])
   const [editItem, setEditItem] = useState(null)
   const [newItem, showNewItem] = useState(false)
-  const [providers, setProviders] = useState(entity.providers ?? [])
+  const [providers, setProviders] = useState(JSON.parse(entity.providers) ?? [])
   const navigate = useNavigate()
   console.log(entity)
 

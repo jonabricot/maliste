@@ -57,7 +57,7 @@ export default function ItemViewShare({ entity, onProvider, forceProvider = fals
         setLoading(true)
         const {data, error} = await new EntityManager('item').update(localEntity.id, { providers: [...localEntity.providers, provider] })
         if (data) {
-            setLocalEntity(data)
+            setLocalEntity({...data, providers: JSON.parse(data.providers)})
         }
         setLoading(false)
     }
@@ -73,7 +73,7 @@ export default function ItemViewShare({ entity, onProvider, forceProvider = fals
         const { data, error } = await new EntityManager('item').update(localEntity.id, { providers: newProviders })
 
         if (data) {
-            setLocalEntity(data)
+            setLocalEntity({...data, providers: JSON.parse(data.providers)})
         }
         setLoading(false)
     }

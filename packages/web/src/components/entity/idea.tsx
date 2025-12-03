@@ -34,7 +34,7 @@ export const backgroundColorMapping: Record<typeof availableColors[number], stri
     default: 'bg-linear-to-tr from-black/20 dark:from-white/20 to-transparent'
 }
 
-const backgroundColorInputMapping: Record<typeof availableColors[number], string> = {
+export const backgroundColorInputMapping: Record<typeof availableColors[number], string> = {
     red: 'bg-red-600 dark:bg-red-400',
     orange: 'bg-orange-600 dark:bg-orange-400',
     amber: 'bg-amber-600 dark:bg-amber-400',

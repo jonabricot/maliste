@@ -124,7 +124,7 @@ export const route = app
     if (!foundedUser) return c.json(null, 403)
 
     const [insertedList] = await db.insert(schema.lists).values({...list, authorId: foundedUser.id}).returning()
-    await db.insert(schema.ideas).values(ideas.map(idea => ({name: idea.name, link: idea.link, listId: insertedList.id})))
+    await db.insert(schema.ideas).values(ideas.map(idea => ({...idea, listId: insertedList.id})))
 
     const createdList = await db.query.lists.findFirst({
       with: { 

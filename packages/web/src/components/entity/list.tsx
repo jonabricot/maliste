@@ -273,7 +273,6 @@ export function ListForm({entity}: {entity?: ListEditionType}) {
                 {ideas.fields.map((field, index) => <Card key={field.id} className="aspect-square p-0">
                     <CardContent className="p-4">
                         <FieldGroup>
-                            <input className="sr-only" {...register(`ideas.${index}.link`)}/>
                             <Field>
                                 <div className="flex gap-2 items-center">
                                     <FieldLabel htmlFor={`ideas.${index}.name`} className="flex-1">Idée n{index+1}</FieldLabel>
@@ -290,7 +289,6 @@ export function ListForm({entity}: {entity?: ListEditionType}) {
                                 <Input {...register(`ideas.${index}.link`)}/>
                             </Field>}
                         </FieldGroup>
-                        <input className="sr-only" defaultValue={pickValue(availableColors)} {...register(`ideas.${index}.color`)}/>
                     </CardContent>
                 </Card>)}
                 <Button type="button" variant={"outline"} className="border-2 border-dashed aspect-square w-full h-auto" onClick={() => ideas.append({name: pickValue(exampleIdeas), link: null})}>Ajouter une idée</Button>

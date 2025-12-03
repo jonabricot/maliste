@@ -131,7 +131,7 @@ export function ListDetails({entity}: {entity: ListType}) {
                     <DialogTitle>Qui es-tu ?</DialogTitle>
                     <DialogDescription>Trouve ton nom dans la liste ci-dessous</DialogDescription>
                 </DialogHeader>
-                <div className="flex gap-2">{entity.participants?.map(participantItem => <Button variant={participant === participantItem ? "default" : "outline"} onClick={() => handleParticipantSelect(participantItem)}>{participantItem}</Button>)}</div>
+                <div className="flex gap-2 flex-wrap">{entity.participants?.map(participantItem => <Button variant={participant === participantItem ? "default" : "outline"} onClick={() => handleParticipantSelect(participantItem)}>{participantItem}</Button>)}</div>
             </DialogContent>
         </Dialog>
     </div>

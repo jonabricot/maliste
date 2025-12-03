@@ -183,11 +183,6 @@ export const route = app
     return c.json(updatedList)
   })
 
-serve({
-  fetch: app.fetch,
-  port: 3000
-}, (info) => {
-  console.log(`Server is running on http://localhost:${info.port}`)
-})
+export default app;
 
 

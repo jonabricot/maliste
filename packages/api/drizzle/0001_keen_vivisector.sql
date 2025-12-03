@@ -1,0 +1,1 @@
+ALTER TABLE "ideas" ADD COLUMN "color" varchar(255);

@@ -88,7 +88,7 @@ export function ListDetails({entity}: {entity: ListType}) {
         </div>
         <div className="relative">
             <div className={cn("space-y-6 transition-all", entity.authorId === store.user?.id && privacy && "blur-xl")}>
-                <div className='grid grid-cols-[repeat(auto-fill,minmax(20ch,1fr))] gap-4'>
+                <div className='grid [--size:15ch] md:[--size:20ch] grid-cols-[repeat(auto-fill,minmax(var(--size),1fr))] gap-4'>
                     {entity.ideas.map(idea => <Card key={`idea-${idea.id}`} className={cn("p-0 gap-4 aspect-square", (idea.participants??[]).length > 0 && "border-primary", (idea.color && idea.color in backgroundColorMapping) ? backgroundColorMapping[idea.color] : backgroundColorMapping.default)}>
                         <CardHeader className="p-4 pb-0 flex-1 flex flex-col items-center justify-center gap-1 text-center">
                             <CardTitle>
@@ -270,7 +270,7 @@ export function ListForm({entity}: {entity?: ListEditionType}) {
             <FieldLegend>Trouvez des idées originales</FieldLegend>
             <FieldDescription>Chaque participant pourra ensuite choisir la ou les idées qui l'intéressent.</FieldDescription>
             <div className="grid grid-cols-[repeat(auto-fill,minmax(20ch,1fr))] gap-4">
-                {ideas.fields.map((field, index) => <Card key={field.id} className="aspect-square p-0">
+                {ideas.fields.map((field, index) => <Card key={field.id} className="md:aspect-square p-0">
                     <CardContent className="p-4">
                         <FieldGroup>
                             <Field>
@@ -291,7 +291,7 @@ export function ListForm({entity}: {entity?: ListEditionType}) {
                         </FieldGroup>
                     </CardContent>
                 </Card>)}
-                <Button type="button" variant={"outline"} className="border-2 border-dashed aspect-square w-full h-auto" onClick={() => ideas.append({name: pickValue(exampleIdeas), link: null})}>Ajouter une idée</Button>
+                <Button type="button" variant={"outline"} className="border-2 border-dashed md:aspect-square w-full h-auto" onClick={() => ideas.append({name: pickValue(exampleIdeas), link: null})}>Ajouter une idée</Button>
             </div>
         </FieldSet>
         <div className="md:hidden grid gap-4">

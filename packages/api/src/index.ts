@@ -1,11 +1,10 @@
-import { serve } from '@hono/node-server'
 import { Hono } from 'hono'
 import { processEnvFile } from './env.js'
 import z from 'zod'
 import { zValidator } from '@hono/zod-validator'
 import { drizzle } from 'drizzle-orm/node-postgres'
 import * as schema from './db/schema.ts'
-import { and, asc, desc, eq, inArray, or } from 'drizzle-orm'
+import { and, asc, eq, inArray, or } from 'drizzle-orm'
 
 processEnvFile()
 
@@ -122,7 +121,7 @@ export const route = app
     if (!foundedUser) return c.json(null, 403)
 
     const [insertedList] = await db.insert(schema.lists).values({...list, authorId: foundedUser.id}).returning()
-    const insertedIdeas = await db.insert(schema.ideas).values(ideas.map(idea => ({name: idea.name, link: idea.link, listId: insertedList.id})))
+    await db.insert(schema.ideas).values(ideas.map(idea => ({name: idea.name, link: idea.link, listId: insertedList.id})))
 
     const createdList = await db.query.lists.findFirst({
       with: { 

@@ -39,7 +39,7 @@ export const listsRelation = relations(lists, ({ many, one }) => ({
     })
 }));
 
-export const ideasRelation = relations(ideas, ({ many, one }) => ({
+export const ideasRelation = relations(ideas, ({ one }) => ({
     list: one(lists, {
       fields: [ideas.listId],
       references: [lists.id]

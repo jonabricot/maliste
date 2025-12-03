@@ -3,7 +3,7 @@ import { processEnvFile } from './env.js'
 import z from 'zod'
 import { zValidator } from '@hono/zod-validator'
 import { drizzle } from 'drizzle-orm/node-postgres'
-import * as schema from './db/schema.ts'
+import * as schema from './db/schema.js'
 import { and, asc, eq, inArray, or } from 'drizzle-orm'
 
 processEnvFile()

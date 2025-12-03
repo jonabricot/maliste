@@ -5,10 +5,13 @@ import { zValidator } from '@hono/zod-validator'
 import { drizzle } from 'drizzle-orm/node-postgres'
 import * as schema from './db/schema.js'
 import { and, asc, eq, inArray, or } from 'drizzle-orm'
+import { cors } from 'hono/cors'
 
 processEnvFile()
 
 const app = new Hono()
+app.use('*', cors({origin: [process.env.FRONTEND_URL!]}))
+
 const db = drizzle(process.env.POSTGRES_URL!, {schema});
 
 const listSchema = z.object({

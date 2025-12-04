@@ -7,7 +7,7 @@ import { LucideCheckCircle2, LucideExternalLink, LucideEye, LucideEyeOff, Lucide
 import { useEffect, useMemo, useState } from "react"
 import { useAppStore } from "@/store"
 import { useDialog } from "@/hooks/dialog"
-import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../ui/dialog"
 import { client } from "@/api/client"
 import { useQueryClient } from "react-query"
 import { cn } from "@/lib/utils"
@@ -17,6 +17,7 @@ import { Input } from "../ui/input"
 import { Separator } from "../ui/separator"
 import { Textarea } from "../ui/textarea"
 import { availableColors, backgroundColorMapping } from "./idea"
+import { Spinner } from "../ui/spinner"
 
 function participantsString(participants: string[]) {
     if (participants.length == 0) return ""
@@ -27,7 +28,8 @@ function participantsString(participants: string[]) {
     return `${otherParticipants.join(', ')} et ${lastParticipant} s'en occupent`
 }
 
-export function ListDetails({entity}: {entity: ListType}) {
+export function ListDetails({entity, loading}: {entity: ListType, loading: boolean}) {
+    const [ideaLoading, setIdeaLoading] = useState<null|number>(null)
     const store = useAppStore()
     const participant = useMemo(() => store.participations[entity.id], [store.participations])
     const participationDialog = useDialog()
@@ -47,6 +49,8 @@ export function ListDetails({entity}: {entity: ListType}) {
 
     async function submitIdeaBook(id: number) {
         if (!store.user) return
+
+        setIdeaLoading(id)
         await client.idea[':id'].book.$post({param: {id: String(id)}, json: {user: store.user.id, token: store.user.token, participant}})
         queryClient.invalidateQueries({queryKey: ['list', entity.id]})
     }
@@ -63,6 +67,8 @@ export function ListDetails({entity}: {entity: ListType}) {
 
     async function handleIdeaUnbook(id: number) {
         if (!store.user) return
+
+        setIdeaLoading(id)
         await client.idea[':id'].unbook.$post({param: {id: String(id)}, json: {user: store.user.id, token: store.user.token, participant}})
         queryClient.invalidateQueries({queryKey: ['list', entity.id]})
     }
@@ -79,9 +85,15 @@ export function ListDetails({entity}: {entity: ListType}) {
         }
     }, [autoBook, participant])
 
+    useEffect(() => {
+        if (!loading && ideaLoading !== null) {
+            setIdeaLoading(null)
+        }
+    }, [loading])
+
     return <div className="space-y-6">
         <div className="grid md:flex gap-4 items-center">
-            <Title variant={"h1"}>{entity.name}</Title>
+            <Title variant={"h1"}>{entity.name} {loading}</Title>
             {entity.authorId === store.user?.id && <Button asChild><Link to={`/list/${entity.id}/edit`}><LucidePen/>Modifier la liste</Link></Button>}
             {entity.authorId === store.user?.id && privacy && <Button variant={"outline"} onClick={() => setPrivacy(false)}><LucideEye/>Voir la liste</Button>}
             {entity.authorId === store.user?.id && !privacy && <Button variant={"outline"} onClick={handleResetPrivacy}><LucideEyeOff/>Cacher la liste</Button>}
@@ -98,9 +110,9 @@ export function ListDetails({entity}: {entity: ListType}) {
                         </CardHeader>
                         <CardFooter className="p-4 pt-0 block space-y-4">
                             {(idea.participants??[]).length > 0 && <p className="text-sm"><LucideCheckCircle2 className="inline size-[1em]"/> {participantsString(idea.participants??[])}</p>}
-                            {(idea.participants??[]).length === 0 && <Button className="w-full" onClick={() => handleIdeaBook(idea.id)}>Je le prends</Button>}
-                            {(idea.participants??[]).length > 0 && !(idea.participants??[]).includes(participant) && <Button className="w-full" onClick={() => handleIdeaBook(idea.id)}>Je participe</Button>}
-                            {participant && (idea.participants??[]).includes(participant) && <Button className="w-full" variant={"outline"} onClick={() => handleIdeaUnbook(idea.id)}>Annuler</Button>}
+                            {(idea.participants??[]).length === 0 && <Button className="w-full" disabled={ideaLoading === idea.id} onClick={() => handleIdeaBook(idea.id)}>{ideaLoading === idea.id && <Spinner/>}Je le prends</Button>}
+                            {(idea.participants??[]).length > 0 && !(idea.participants??[]).includes(participant) && <Button className="w-full" disabled={ideaLoading === idea.id} onClick={() => handleIdeaBook(idea.id)}>{ideaLoading === idea.id && <Spinner/>}Je participe</Button>}
+                            {participant && (idea.participants??[]).includes(participant) && <Button className="w-full" variant={"outline"} disabled={ideaLoading === idea.id} onClick={() => handleIdeaUnbook(idea.id)}>{ideaLoading === idea.id && <Spinner/>}Annuler</Button>}
                         </CardFooter>
                     </Card>)}
                 </div>
@@ -180,6 +192,7 @@ function pickValue(array: string[]) {
 }
 
 export function ListForm({entity}: {entity?: ListEditionType}) {
+    const [loading, setLoading] = useState(false)
     const navigate = useNavigate()
     const {user} = useAppStore()
     if (!user) return
@@ -194,6 +207,7 @@ export function ListForm({entity}: {entity?: ListEditionType}) {
     const participants = useFieldArray({name: 'participants', control})
 
     const onSubmit: SubmitHandler<ListEditionType> = async (data) => {
+        setLoading(true)
         const listData = {
             ...data,
             user: user.id, 
@@ -201,7 +215,6 @@ export function ListForm({entity}: {entity?: ListEditionType}) {
             participants: data.participants.map(p => p.name),
             ideas: data.ideas.map(idea => ({...idea, color: idea.color ?? pickValue(availableColors)}))
         }
-
         if (entity) {
             const {id} = entity
             if(!id) return 
@@ -220,7 +233,30 @@ export function ListForm({entity}: {entity?: ListEditionType}) {
                 navigate(`/list/${list.id}`)
             }
         }
+
+        setLoading(false)
     }
+
+    const formActions = <>
+        <Button type="submit" disabled={loading}>{loading && <Spinner/>}{entity ? "Enregistrer la liste" : "Créer la liste"}</Button>
+        {/* {entity && <Dialog>
+            <DialogTrigger asChild>
+                <Button type="button" variant={"destructive"}>Supprimer la liste</Button>
+            </DialogTrigger>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>Etes-vous sûr ?</DialogTitle>
+                    <DialogDescription>Vous êtes sur le point de supprimer définitivement cette liste.</DialogDescription>
+                </DialogHeader>
+                <DialogFooter className="flex gap-2 justify-end">
+                    <DialogClose asChild>
+                        <Button type="button" variant={"ghost"}>Annuler</Button>
+                    </DialogClose>
+                    <Button type="button" variant={"destructive"}>Supprimer la liste</Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>} */}
+    </>
 
     return <form onSubmit={handleSubmit(onSubmit)} className="grid md:grid-cols-[30ch_1fr] gap-6">
         <FieldSet>
@@ -246,24 +282,7 @@ export function ListForm({entity}: {entity?: ListEditionType}) {
             </FieldGroup>
             <Separator/>
             <div className="hidden md:grid gap-4">
-                <Button type="submit">{entity ? "Enregistrer la liste" : "Créer la liste"}</Button>
-                {entity && <Dialog>
-                    <DialogTrigger asChild>
-                        <Button type="button" variant={"destructive"}>Supprimer la liste</Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                        <DialogHeader>
-                            <DialogTitle>Etes-vous sûr ?</DialogTitle>
-                            <DialogDescription>Vous êtes sur le point de supprimer définitivement cette liste.</DialogDescription>
-                        </DialogHeader>
-                        <DialogFooter className="flex gap-2 justify-end">
-                            <DialogClose asChild>
-                                <Button type="button" variant={"ghost"}>Annuler</Button>
-                            </DialogClose>
-                            <Button type="button" variant={"destructive"}>Supprimer la liste</Button>
-                        </DialogFooter>
-                    </DialogContent>
-                </Dialog>}
+                {formActions}
             </div>
         </FieldSet>
         <FieldSet>
@@ -295,24 +314,7 @@ export function ListForm({entity}: {entity?: ListEditionType}) {
             </div>
         </FieldSet>
         <div className="md:hidden grid gap-4">
-            <Button type="submit">{entity ? "Enregistrer la liste" : "Créer la liste"}</Button>
-            {entity && <Dialog>
-                <DialogTrigger asChild>
-                    <Button type="button" variant={"destructive"}>Supprimer la liste</Button>
-                </DialogTrigger>
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>Etes-vous sûr ?</DialogTitle>
-                        <DialogDescription>Vous êtes sur le point de supprimer définitivement cette liste.</DialogDescription>
-                    </DialogHeader>
-                    <DialogFooter className="flex gap-2 justify-end">
-                        <DialogClose asChild>
-                            <Button type="button" variant={"ghost"}>Annuler</Button>
-                        </DialogClose>
-                        <Button type="button" variant={"destructive"}>Supprimer la liste</Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>}
+            {formActions}
         </div>
     </form>
 }

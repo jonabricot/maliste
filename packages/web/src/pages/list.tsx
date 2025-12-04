@@ -12,7 +12,7 @@ export function ListPage() {
     const {id} = useParams()
     if (!id) return
 
-    const {data} = useQuery({
+    const {data, isFetching} = useQuery({
         queryKey: ['list', id],
         queryFn: async () => {
             const response = await client.list[':id'].$get({param: {id}})
@@ -26,11 +26,11 @@ export function ListPage() {
         }
     }, [data, user, sharedList])
 
-    return data && <div className="container mx-auto p-4 space-y-12">
+    return <div className="container mx-auto p-4 space-y-12">
         <Button variant={"link"} asChild>
             <Link to="/"><LucideArrowLeft className="size-[1em]"/>Retour à l'accueil</Link>
         </Button>
-        <ListDetails entity={data}/>
+        {data && <ListDetails entity={data} loading={isFetching}/>}
     </div>
 }
 

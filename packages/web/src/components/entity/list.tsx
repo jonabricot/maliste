@@ -100,6 +100,11 @@ export function ListDetails({entity, loading}: {entity: ListType, loading: boole
         </div>
         <div className="relative">
             <div className={cn("space-y-6 transition-all", entity.authorId === store.user?.id && privacy && "blur-xl")}>
+                <div className="flex items-center gap-2">
+                    {participant && <p className="text-muted-foreground text-sm">Vous participez à cette liste en tant que {participant}.</p>}
+                    {!participant && <p className="text-muted-foreground text-sm">Vous ne participez pas encore à cette liste.</p>}
+                    <Button variant={"outline"} size="sm" {...participationDialog.triggerProps}>{participant ? "Changer" : "Participer"}</Button>
+                </div>
                 <div className='grid [--size:15ch] md:[--size:20ch] grid-cols-[repeat(auto-fill,minmax(var(--size),1fr))] gap-4'>
                     {entity.ideas.map(idea => <Card key={`idea-${idea.id}`} className={cn("p-0 gap-4 aspect-square", (idea.participants??[]).length > 0 && "border-primary", (idea.color && idea.color in backgroundColorMapping) ? backgroundColorMapping[idea.color] : backgroundColorMapping.default)}>
                         <CardHeader className="p-4 pb-0 flex-1 flex flex-col items-center justify-center gap-1 text-center">
@@ -116,12 +121,6 @@ export function ListDetails({entity, loading}: {entity: ListType, loading: boole
                         </CardFooter>
                     </Card>)}
                 </div>
-                <div className="flex items-center gap-2">
-                    {participant && <p className="text-muted-foreground text-sm">Vous participez à cette liste en tant que {participant}.</p>}
-                    {!participant && <p className="text-muted-foreground text-sm">Vous ne participez pas encore à cette liste.</p>}
-                    <Button variant={"outline"} size="sm" {...participationDialog.triggerProps}>{participant ? "Changer" : "Participer"}</Button>
-                </div>
-                
             </div>
             <div className={cn("absolute size-full inset-0 flex items-center justify-center transition-all opacity-0 pointer-events-none", entity.authorId === store.user?.id && privacy && "opacity-100 pointer-events-auto")}>
                 <Card className="w-full max-w-md">

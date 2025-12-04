@@ -98,7 +98,7 @@ export function ListDetails({entity}: {entity: ListType}) {
                         </CardHeader>
                         <CardFooter className="p-4 pt-0 block space-y-4">
                             {(idea.participants??[]).length > 0 && <p className="text-sm"><LucideCheckCircle2 className="inline size-[1em]"/> {participantsString(idea.participants??[])}</p>}
-                            {(idea.participants??[]).length === 0 && <Button className="w-full" onClick={() => handleIdeaBook(idea.id)}>Je le prend</Button>}
+                            {(idea.participants??[]).length === 0 && <Button className="w-full" onClick={() => handleIdeaBook(idea.id)}>Je le prends</Button>}
                             {(idea.participants??[]).length > 0 && !(idea.participants??[]).includes(participant) && <Button className="w-full" onClick={() => handleIdeaBook(idea.id)}>Je participe</Button>}
                             {participant && (idea.participants??[]).includes(participant) && <Button className="w-full" variant={"outline"} onClick={() => handleIdeaUnbook(idea.id)}>Annuler</Button>}
                         </CardFooter>
@@ -225,7 +225,7 @@ export function ListForm({entity}: {entity?: ListEditionType}) {
     return <form onSubmit={handleSubmit(onSubmit)} className="grid md:grid-cols-[30ch_1fr] gap-6">
         <FieldSet>
             <FieldLegend>Paramètres de la liste</FieldLegend>
-            <FieldDescription>Fournissez les informations nécéssaires au bon fonctionnement de votre liste.</FieldDescription>
+            <FieldDescription>Fournissez les informations nécessaires au bon fonctionnement de votre liste.</FieldDescription>
             <FieldGroup>
                 <Field>
                     <FieldLabel htmlFor="name">Nom de la liste</FieldLabel>
@@ -275,7 +275,7 @@ export function ListForm({entity}: {entity?: ListEditionType}) {
                         <FieldGroup>
                             <Field>
                                 <div className="flex gap-2 items-center">
-                                    <FieldLabel htmlFor={`ideas.${index}.name`} className="flex-1">Idée n{index+1}</FieldLabel>
+                                    <FieldLabel htmlFor={`ideas.${index}.name`} className="flex-1">Idée n°{index+1}</FieldLabel>
                                     <Button type="button" variant={"ghost"} size={"icon-sm"} onClick={() => ideas.remove(index)}><LucideX/></Button>
                                 </div>
                                 <Textarea {...register(`ideas.${index}.name`)}/>

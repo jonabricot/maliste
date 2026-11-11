@@ -1,9 +1,9 @@
 services:
   api:
-    container_name: api
+    container_name: maliste-api
     image: ghcr.io/jonabricot/maliste/api:latest
     ports: 
-      - 3000:3000
+      - 3002:3000
     env_file: .env.local
     labels:
       - "traefik.enable=true"
@@ -14,10 +14,10 @@ services:
       - db
   
   web: 
-    container_name: web
+    container_name: maliste-web
     image: ghcr.io/jonabricot/maliste/web:latest
     ports: 
-      - 3001:3001
+      - 3003:3001
     env_file: .env.local
     labels:
       - "traefik.enable=true"
@@ -26,20 +26,19 @@ services:
       - "traefik.http.routers.web.tls.certresolver=mytlschallenge"
 
   db:
-    container_name: db
+    container_name: maliste-db
     image: postgres
     shm_size: 128mb
     volumes:
       - pgdata:/var/lib/postgresql
     ports:
-      - 5432:5432
+      - 5433:5432
     env_file: .env.local
   
   proxy:
     image: "traefik"
-    container_name: "proxy"
+    container_name: maliste-proxy
     command:
-      - "--api.insecure=true"
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
       - "--entrypoints.websecure.address=:443"
@@ -47,7 +46,6 @@ services:
       - "--certificatesresolvers.mytlschallenge.acme.email=contact@maliste.les-bouzous.fr"
       - "--certificatesresolvers.mytlschallenge.acme.storage=/letsencrypt/acme.json"
     ports:
-      - "8080:8080"
       - "443:443"
     volumes:
       - "./letsencrypt:/letsencrypt"

@@ -11,7 +11,7 @@
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "build": "pnpm tsc && cp -R drizzle dist/drizzle",
-    "start": "pnpm node_modules/.bin/drizzle-kit migrate --config=dist/drizzle.config.js && node dist/src/index.js"
+    "start": "pnpm drizzle-kit migrate --config=dist/drizzle.config.js && node dist/src/index.js"
   },
   "dependencies": {
     "@hono/node-server": "^1.19.18",
@@ -23,12 +23,12 @@
     "link-preview-js": "^4.0.4",
     "pg": "^8.23.1",
     "postgres": "^3.4.9",
-    "zod": "^4.6.7"
+    "zod": "^4.6.7",
+    "drizzle-kit": "1.0.0-rc.5"
   },
   "devDependencies": {
     "@types/node": "^20.19.43",
     "@types/pg": "^8.23.1",
-    "drizzle-kit": "1.0.0-rc.5",
     "tsx": "^4.23.15",
     "typescript": "^5.9.3"
   }

@@ -3,7 +3,7 @@ services:
     container_name: maliste-api
     image: ghcr.io/jonabricot/maliste/api:latest
     ports: 
-      - 3002:3000
+      - 3000:3000
     env_file: .env.local
     labels:
       - "traefik.enable=true"
@@ -17,7 +17,7 @@ services:
     container_name: maliste-web
     image: ghcr.io/jonabricot/maliste/web:latest
     ports: 
-      - 3003:3001
+      - 3001:3001
     env_file: .env.local
     labels:
       - "traefik.enable=true"
@@ -32,7 +32,7 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql
     ports:
-      - 5433:5432
+      - 5432:5432
     env_file: .env.local
   
   proxy:

@@ -10,7 +10,8 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "start": "serve -p 3001 ./dist"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",

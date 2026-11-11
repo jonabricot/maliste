@@ -5,10 +5,13 @@
     ".": "./src/index.ts",
     "./types": "./src/types.ts"
   },
+  "files": [
+    "./dist"
+  ],
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "build": "pnpm drizzle-kit migrate && pnpm tsc",
-    "start": "node dist/index.js"
+    "build": "pnpm tsc && cp -R drizzle dist/drizzle",
+    "start": "pnpm drizzle-kit migrate --config=dist/drizzle.config.js && node dist/src/index.js",
   },
   "dependencies": {
     "@hono/node-server": "^1.19.18",

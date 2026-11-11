@@ -1,3 +1,17 @@
+import { useForm, type SubmitHandler } from "react-hook-form"
+import { Field, FieldGroup, FieldLabel } from "../ui/field"
+import { Textarea } from "../ui/textarea"
+import type { IdeaInsertType, IdeaSelectType, IdeaType } from "api/types"
+import { Button } from "../ui/button"
+import { LucideLink, LucidePlus, LucidePlusCircle, LucideX } from "lucide-react"
+import { Input } from "../ui/input"
+import { useEffect, useState } from "react"
+import { Spinner } from "../ui/spinner"
+import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput, InputGroupTextarea } from "../ui/input-group"
+import { cn } from "cn"
+import { Dialog } from "../ui/dialog"
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip"
+
 export const availableColors = [
     'red',
     'orange',
@@ -49,4 +63,84 @@ export const backgroundColorInputMapping: Record<typeof availableColors[number],
     purple: 'bg-purple-600 dark:bg-purple-400',
     fuchsia: 'bg-fuchsia-600 dark:bg-fuchsia-400',
     pink: 'bg-pink-600 dark:bg-pink-400',
+}
+
+export function IdeaForm({entity, onSubmit, onCancel}: {entity?: IdeaSelectType, onSubmit: SubmitHandler<IdeaType>, onCancel?: () => void}) {
+    const [values, setValues] = useState<Partial<IdeaType>>(entity ?? { name: "", link: null })
+    const [loading, setLoading] = useState(false)
+
+    const {
+        register,
+        setValue,
+        subscribe,
+        handleSubmit
+    } = useForm<IdeaType>({defaultValues: entity ?? { name: "", link: null }})
+
+    useEffect(() => {
+        // make sure to unsubscribe;
+        const unsubscribe = subscribe({
+        formState: {
+            values: true,
+        },
+        callback: ({ values }) => {
+            setValues(values)
+        },
+        })
+
+        return () => unsubscribe()
+    }, [subscribe])
+
+    async function submitHandler(...args: Parameters<typeof onSubmit>) {
+        setLoading(true)
+        await onSubmit(...args)
+        setLoading(false)
+    }
+
+
+    return <form onSubmit={handleSubmit(submitHandler)}>
+        <InputGroup className={cn("w-full md:min-h-[15ch]")}>
+            <InputGroupAddon align={"block-start"}>Nom de l'idée</InputGroupAddon>
+            <InputGroupTextarea  {...register('name')}/>
+            <InputGroupAddon align={"block-end"} className="grid w-full justify-stretch">
+                {values.link !== null && <InputGroup>
+                    <InputGroupAddon align={"inline-start"}><LucideLink/></InputGroupAddon>
+                    <InputGroupInput {...register("link")}/>
+                    <InputGroupAddon align={"inline-end"}>
+                        <Tooltip>
+                            <TooltipTrigger render={ <InputGroupButton type="button" variant={"ghost"}/>} onClick={() => setValue('link', null)}>
+                                <LucideX/>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                Supprimer le lien
+                            </TooltipContent>
+                        </Tooltip>
+                    </InputGroupAddon>
+                </InputGroup>}
+                {values.link === null && <Button variant="ghost" onClick={() => setValue('link', '')}><LucidePlus/>Ajouter un lien</Button>}
+                <Button type="button" variant={"outline"} onClick={() => onCancel && onCancel()}>Annuler</Button>
+                <Button type="submit" disabled={loading}>{loading && <Spinner/>}{entity?.id ? "Modifier l'idée": "Ajouter l'idée"}</Button>
+            </InputGroupAddon>
+        </InputGroup>
+    </form>
+
+    return <form onSubmit={handleSubmit(submitHandler)}>
+        <FieldGroup>
+            <Field>
+                <FieldLabel htmlFor={`name`} className="flex-1">Nom de l'idée</FieldLabel>
+                <Textarea {...register(`name`)}/>
+                {values?.link === null && <Button type="button" variant="link" size="none" className="text-left justify-start" onClick={() => setValue('link', '')}><LucidePlusCircle/>Ajouter un lien</Button>}
+            </Field>
+            {values?.link !== null && <Field>
+                <div className="flex gap-2 items-center">
+                    <FieldLabel htmlFor={`link`} className="flex-1">Lien</FieldLabel>
+                    <Button type="button" variant="link" className="p-0 h-auto" onClick={() => setValue('link', null)}><LucideX/>Retirer le lien</Button>    
+                </div>
+                <Input {...register(`link`)}/>
+            </Field>}
+            <div className="grid gap-2 ">
+                <Button type="button" variant={"outline"} onClick={() => onCancel && onCancel()}>Annuler</Button>
+                <Button type="submit" disabled={loading}>{loading && <Spinner/>}{entity?.id ? "Modifier l'idée": "Ajouter l'idée"}</Button>
+            </div>
+        </FieldGroup>
+    </form>
 }

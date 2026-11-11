@@ -1,0 +1,47 @@
+{
+  "type": "diff",
+  "version": "9",
+  "dialect": "postgres",
+  "id": "2118c79c-a230-4574-a6c7-edfa1f08f879",
+  "prevIds": [
+    "75d6d5db-7894-4efa-8966-d828f05315c0"
+  ],
+  "footprints": [
+    {
+      "statementType": "add_column",
+      "statementTarget": [
+        "column",
+        "public",
+        "list",
+        "allowIdeaProposal"
+      ],
+      "writes": [
+        "s|col|public.list.allowIdeaProposal",
+        "n|col|public.list.allowIdeaProposal",
+        "e|col|public.list.allowIdeaProposal"
+      ],
+      "reads": [
+        "n|tbl|public.list",
+        "n|sch|public"
+      ]
+    }
+  ],
+  "deltas": [
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "list",
+        "name": "allowIdeaProposal",
+        "type": "boolean",
+        "typeSchema": null,
+        "notNull": false,
+        "dimensions": 0,
+        "default": "false",
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    }
+  ]
+}

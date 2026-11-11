@@ -1,0 +1,556 @@
+{
+  "type": "diff",
+  "version": "9",
+  "dialect": "postgres",
+  "id": "109cf8e6-dadb-4771-97d6-85e7e8297a62",
+  "prevIds": [
+    "02f81cbe-cd61-4728-bf23-784a56f760a6"
+  ],
+  "footprints": [
+    {
+      "statementType": "create_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "participant"
+      ],
+      "writes": [
+        "s|tbl|public.participant",
+        "n|tbl|public.participant",
+        "e|tbl|public.participant",
+        "n|rel|public.participant",
+        "n|type|public.participant",
+        "n|rel|public.participant_pkey"
+      ],
+      "reads": [
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "create_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "participant_to_idea"
+      ],
+      "writes": [
+        "s|tbl|public.participant_to_idea",
+        "n|tbl|public.participant_to_idea",
+        "e|tbl|public.participant_to_idea",
+        "n|rel|public.participant_to_idea",
+        "n|type|public.participant_to_idea",
+        "n|rel|public.participant_to_idea_pkey"
+      ],
+      "reads": [
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "create_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "user_to_participant"
+      ],
+      "writes": [
+        "s|tbl|public.user_to_participant",
+        "n|tbl|public.user_to_participant",
+        "e|tbl|public.user_to_participant",
+        "n|rel|public.user_to_participant",
+        "n|type|public.user_to_participant",
+        "n|rel|public.user_to_participant_pkey"
+      ],
+      "reads": [
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "drop_column",
+      "statementTarget": [
+        "column",
+        "public",
+        "idea",
+        "participants"
+      ],
+      "writes": [
+        "s|col|public.idea.participants",
+        "n|col|public.idea.participants",
+        "e|col|public.idea.participants"
+      ],
+      "reads": [
+        "n|tbl|public.idea",
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "drop_column",
+      "statementTarget": [
+        "column",
+        "public",
+        "idea",
+        "authorName"
+      ],
+      "writes": [
+        "s|col|public.idea.authorName",
+        "n|col|public.idea.authorName",
+        "e|col|public.idea.authorName"
+      ],
+      "reads": [
+        "n|tbl|public.idea",
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "drop_column",
+      "statementTarget": [
+        "column",
+        "public",
+        "list",
+        "participants"
+      ],
+      "writes": [
+        "s|col|public.list.participants",
+        "n|col|public.list.participants",
+        "e|col|public.list.participants"
+      ],
+      "reads": [
+        "n|tbl|public.list",
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "create_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "participant"
+      ],
+      "writes": [
+        "s|fk|public.participant.participant_listId_list_id_fkey",
+        "n|fk|public.participant.participant_listId_list_id_fkey",
+        "e|fk|public.participant.participant_listId_list_id_fkey",
+        "n|con|public.participant.participant_listId_list_id_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.participant",
+        "n|sch|public",
+        "n|tbl|public.list",
+        "n|sch|public",
+        "n|col|public.participant.listId",
+        "n|col|public.list.id",
+        "e|uniqueness|public.list.id"
+      ]
+    },
+    {
+      "statementType": "create_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "participant_to_idea"
+      ],
+      "writes": [
+        "s|fk|public.participant_to_idea.participant_to_idea_ideaId_idea_id_fkey",
+        "n|fk|public.participant_to_idea.participant_to_idea_ideaId_idea_id_fkey",
+        "e|fk|public.participant_to_idea.participant_to_idea_ideaId_idea_id_fkey",
+        "n|con|public.participant_to_idea.participant_to_idea_ideaId_idea_id_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.participant_to_idea",
+        "n|sch|public",
+        "n|tbl|public.idea",
+        "n|sch|public",
+        "n|col|public.participant_to_idea.ideaId",
+        "n|col|public.idea.id",
+        "e|uniqueness|public.idea.id"
+      ]
+    },
+    {
+      "statementType": "create_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "participant_to_idea"
+      ],
+      "writes": [
+        "s|fk|public.participant_to_idea.participant_to_idea_participantId_participant_id_fkey",
+        "n|fk|public.participant_to_idea.participant_to_idea_participantId_participant_id_fkey",
+        "e|fk|public.participant_to_idea.participant_to_idea_participantId_participant_id_fkey",
+        "n|con|public.participant_to_idea.participant_to_idea_participantId_participant_id_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.participant_to_idea",
+        "n|sch|public",
+        "n|tbl|public.participant",
+        "n|sch|public",
+        "n|col|public.participant_to_idea.participantId",
+        "n|col|public.participant.id",
+        "e|uniqueness|public.participant.id"
+      ]
+    },
+    {
+      "statementType": "create_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "user_to_participant"
+      ],
+      "writes": [
+        "s|fk|public.user_to_participant.user_to_participant_userId_user_id_fkey",
+        "n|fk|public.user_to_participant.user_to_participant_userId_user_id_fkey",
+        "e|fk|public.user_to_participant.user_to_participant_userId_user_id_fkey",
+        "n|con|public.user_to_participant.user_to_participant_userId_user_id_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.user_to_participant",
+        "n|sch|public",
+        "n|tbl|public.user",
+        "n|sch|public",
+        "n|col|public.user_to_participant.userId",
+        "n|col|public.user.id",
+        "e|uniqueness|public.user.id"
+      ]
+    },
+    {
+      "statementType": "create_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "user_to_participant"
+      ],
+      "writes": [
+        "s|fk|public.user_to_participant.user_to_participant_participantId_participant_id_fkey",
+        "n|fk|public.user_to_participant.user_to_participant_participantId_participant_id_fkey",
+        "e|fk|public.user_to_participant.user_to_participant_participantId_participant_id_fkey",
+        "n|con|public.user_to_participant.user_to_participant_participantId_participant_id_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.user_to_participant",
+        "n|sch|public",
+        "n|tbl|public.participant",
+        "n|sch|public",
+        "n|col|public.user_to_participant.participantId",
+        "n|col|public.participant.id",
+        "e|uniqueness|public.participant.id"
+      ]
+    }
+  ],
+  "deltas": [
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "name": "participant",
+        "isRlsEnabled": false,
+        "entityType": "tables"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "name": "participant_to_idea",
+        "isRlsEnabled": false,
+        "entityType": "tables"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "name": "user_to_participant",
+        "isRlsEnabled": false,
+        "entityType": "tables"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "participant",
+        "name": "id",
+        "type": "integer",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": {
+          "type": "always",
+          "name": "participant_id_seq",
+          "increment": "1",
+          "startWith": "1",
+          "minValue": "1",
+          "maxValue": "2147483647",
+          "cache": 1,
+          "cycle": false
+        },
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "participant",
+        "name": "name",
+        "type": "varchar(255)",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "participant",
+        "name": "listId",
+        "type": "uuid",
+        "typeSchema": null,
+        "notNull": false,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "participant",
+        "name": "createdAt",
+        "type": "timestamp",
+        "typeSchema": null,
+        "notNull": false,
+        "dimensions": 0,
+        "default": "now()",
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "participant_to_idea",
+        "name": "ideaId",
+        "type": "integer",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "participant_to_idea",
+        "name": "participantId",
+        "type": "integer",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "user_to_participant",
+        "name": "userId",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "user_to_participant",
+        "name": "participantId",
+        "type": "integer",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "participant",
+        "name": "participant_listId_list_id_fkey",
+        "nameExplicit": false,
+        "columns": [
+          "listId"
+        ],
+        "schemaTo": "public",
+        "tableTo": "list",
+        "columnsTo": [
+          "id"
+        ],
+        "onUpdate": "NO ACTION",
+        "onDelete": "NO ACTION",
+        "entityType": "fks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "participant_to_idea",
+        "name": "participant_to_idea_ideaId_idea_id_fkey",
+        "nameExplicit": false,
+        "columns": [
+          "ideaId"
+        ],
+        "schemaTo": "public",
+        "tableTo": "idea",
+        "columnsTo": [
+          "id"
+        ],
+        "onUpdate": "NO ACTION",
+        "onDelete": "NO ACTION",
+        "entityType": "fks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "participant_to_idea",
+        "name": "participant_to_idea_participantId_participant_id_fkey",
+        "nameExplicit": false,
+        "columns": [
+          "participantId"
+        ],
+        "schemaTo": "public",
+        "tableTo": "participant",
+        "columnsTo": [
+          "id"
+        ],
+        "onUpdate": "NO ACTION",
+        "onDelete": "NO ACTION",
+        "entityType": "fks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "user_to_participant",
+        "name": "user_to_participant_userId_user_id_fkey",
+        "nameExplicit": false,
+        "columns": [
+          "userId"
+        ],
+        "schemaTo": "public",
+        "tableTo": "user",
+        "columnsTo": [
+          "id"
+        ],
+        "onUpdate": "NO ACTION",
+        "onDelete": "NO ACTION",
+        "entityType": "fks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "user_to_participant",
+        "name": "user_to_participant_participantId_participant_id_fkey",
+        "nameExplicit": false,
+        "columns": [
+          "participantId"
+        ],
+        "schemaTo": "public",
+        "tableTo": "participant",
+        "columnsTo": [
+          "id"
+        ],
+        "onUpdate": "NO ACTION",
+        "onDelete": "NO ACTION",
+        "entityType": "fks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "participant_to_idea",
+        "name": "participant_to_idea_pkey",
+        "columns": [
+          "ideaId",
+          "participantId"
+        ],
+        "nameExplicit": false,
+        "entityType": "pks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "user_to_participant",
+        "name": "user_to_participant_pkey",
+        "columns": [
+          "userId",
+          "participantId"
+        ],
+        "nameExplicit": false,
+        "entityType": "pks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "participant",
+        "name": "participant_pkey",
+        "columns": [
+          "id"
+        ],
+        "nameExplicit": false,
+        "entityType": "pks"
+      }
+    },
+    {
+      "op": "drop",
+      "key": "columns\u0000[\"public\",\"idea\",\"participants\"]"
+    },
+    {
+      "op": "drop",
+      "key": "columns\u0000[\"public\",\"idea\",\"authorName\"]"
+    },
+    {
+      "op": "drop",
+      "key": "columns\u0000[\"public\",\"list\",\"participants\"]"
+    }
+  ]
+}

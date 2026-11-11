@@ -1,13 +1,13 @@
 import { Button } from "@/components/ui/button"
 import { Link, useNavigate } from "react-router"
 import { Title } from "@/components/ui/title"
-import type { IdeaInsertType, ListInsertType, ListType } from "api/types"
+import type { IdeaInsertType, IdeaSelectType, IdeaType, ListInsertType, ListType, ParticipantInsertType, ParticipantSelectType } from "api/types"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../ui/card"
-import { LucideCheckCircle2, LucideExternalLink, LucideEye, LucideEyeOff, LucidePen, LucidePlus, LucidePlusCircle, LucideX } from "lucide-react"
+import { LucideCheckCircle2, LucideCircleQuestionMark, LucideEllipsisVertical, LucideExternalLink, LucideEye, LucideEyeOff, LucideLink, LucidePen, LucidePlus, LucidePlusCircle, LucideTrash, LucideX } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
 import { useAppStore } from "@/store"
 import { useDialog } from "@/hooks/dialog"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../ui/dialog"
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog"
 import { client } from "@/api/client"
 import { useQueryClient } from "react-query"
 import { cn } from "@/lib/utils"
@@ -16,22 +16,33 @@ import { Field, FieldDescription, FieldGroup, FieldLabel, FieldLegend, FieldSet 
 import { Input } from "../ui/input"
 import { Separator } from "../ui/separator"
 import { Textarea } from "../ui/textarea"
-import { availableColors, backgroundColorMapping } from "./idea"
+import { availableColors, backgroundColorMapping, IdeaForm } from "./idea"
 import { Spinner } from "../ui/spinner"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu"
+import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput, InputGroupText, InputGroupTextarea } from "../ui/input-group"
+import { Item, ItemContent, ItemDescription, ItemTitle } from "../ui/item"
+import { Switch } from "../ui/switch"
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip"
+import { TooltipViewportCssVariables } from "@base-ui/react"
+import { ButtonGroup } from "../ui/button-group"
 
-function participantsString(participants: string[]) {
-    if (participants.length == 0) return ""
-    if (participants.length == 1) return `${participants[0]} s'en occupe`
+function participantsString(participants: ParticipantSelectType[]) {
+    const participantsName = participants.map(p => p.name)
+
+    if (participantsName.length == 0) return ""
+    if (participantsName.length == 1) return `${participantsName[0]} s'en occupe`
     
-    const lastParticipant = participants[participants.length-1]
-    const otherParticipants = participants.slice(0, -1)
+    const lastParticipant = participantsName[participantsName.length-1]
+    const otherParticipants = participantsName.slice(0, -1)
     return `${otherParticipants.join(', ')} et ${lastParticipant} s'en occupent`
 }
 
-export function ListDetails({entity, loading}: {entity: ListType, loading: boolean}) {
+export function ListDetails({entity, loading}: {entity: ListType & { participant?: ParticipantSelectType }, loading: boolean}) {
     const [ideaLoading, setIdeaLoading] = useState<null|number>(null)
+    const [newIdea, setNewIdea] = useState<boolean>(false)
+    const [editingIdea, setEditingIdea] = useState<number|null>(null)
     const store = useAppStore()
-    const participant = useMemo(() => store.participations[entity.id], [store.participations])
+    const participant = useMemo(() => entity.participant, [entity.participant])
     const participationDialog = useDialog()
     const [autoBook, setAutoBook] = useState<number|undefined>(undefined)
     const queryClient = useQueryClient()
@@ -51,7 +62,7 @@ export function ListDetails({entity, loading}: {entity: ListType, loading: boole
         if (!store.user) return
 
         setIdeaLoading(id)
-        await client.idea[':id'].book.$post({param: {id: String(id)}, json: {user: store.user.id, token: store.user.token, participant}})
+        await client.idea[':id'].book.$post({param: {id: String(id)}})
         queryClient.invalidateQueries({queryKey: ['list', entity.id]})
     }
 
@@ -69,14 +80,38 @@ export function ListDetails({entity, loading}: {entity: ListType, loading: boole
         if (!store.user) return
 
         setIdeaLoading(id)
-        await client.idea[':id'].unbook.$post({param: {id: String(id)}, json: {user: store.user.id, token: store.user.token, participant}})
+        await client.idea[':id'].unbook.$post({param: {id: String(id)}})
         queryClient.invalidateQueries({queryKey: ['list', entity.id]})
     }
 
-    function handleParticipantSelect(participant: string) {
-        store.setParticipation(entity.id, participant)
+    async function handleParticipantSelect(id: number) {
+        await client.list[':id'].participate.$post({param: {id: entity.id}, json: {id}})
+        queryClient.invalidateQueries({queryKey: ['list', entity.id]})
         participationDialog.close()
     } 
+
+    async function handleIdeaAdd(idea: IdeaInsertType) {
+        if (!store.user) return
+
+        await client.list[':id'].idea.$post({param: {id: entity.id}, json: {color: pickValue(availableColors), ...idea, }})
+        await queryClient.invalidateQueries({queryKey: ['list', entity.id]})
+        setNewIdea(false)
+    }
+
+    async function handleIdeaEdit(idea: IdeaType) {
+        if (!store.user) return
+
+        await client.list[":list"].idea[":idea"].$post({param: {list: entity.id, idea: String(idea.id)}, json: idea})
+        await queryClient.invalidateQueries({queryKey: ['list', entity.id]})
+        setEditingIdea(null)
+    }
+
+    async function handleIdeaDelete(id: IdeaSelectType['id']) {
+        setIdeaLoading(id)
+        await client.list[":list"].idea[":idea"].$delete({param: {list: entity.id, idea: String(id)}})
+        await queryClient.invalidateQueries({queryKey: ['list', entity.id]})
+        setIdeaLoading(null)
+    }
 
     useEffect(() => {
         if (autoBook && participant) {
@@ -92,34 +127,75 @@ export function ListDetails({entity, loading}: {entity: ListType, loading: boole
     }, [loading])
 
     return <div className="space-y-6">
-        <div className="grid md:flex gap-4 items-center">
-            <Title variant={"h1"}>{entity.name} {loading}</Title>
-            {entity.authorId === store.user?.id && <Button asChild><Link to={`/list/${entity.id}/edit`}><LucidePen/>Modifier la liste</Link></Button>}
+        <div className="grid md:flex gap-2 items-center">
+            <Title variant={"h1"} className="mr-2">{entity.name} {loading}</Title>
+            {entity.authorId === store.user?.id && <Button render={<Link to={`/list/${entity.id}/edit`}/>}><LucidePen/>Modifier la liste</Button>}
             {entity.authorId === store.user?.id && privacy && <Button variant={"outline"} onClick={() => setPrivacy(false)}><LucideEye/>Voir la liste</Button>}
             {entity.authorId === store.user?.id && !privacy && <Button variant={"outline"} onClick={handleResetPrivacy}><LucideEyeOff/>Cacher la liste</Button>}
         </div>
         <div className="relative">
             <div className={cn("space-y-6 transition-all", entity.authorId === store.user?.id && privacy && "blur-xl")}>
                 <div className="flex items-center gap-2">
-                    {participant && <p className="text-muted-foreground text-sm">Vous participez à cette liste en tant que {participant}.</p>}
+                    {participant && <p className="text-muted-foreground text-sm">Vous participez à cette liste en tant que {participant.name}.</p>}
                     {!participant && <p className="text-muted-foreground text-sm">Vous ne participez pas encore à cette liste.</p>}
                     <Button variant={"outline"} size="sm" {...participationDialog.triggerProps}>{participant ? "Changer" : "Participer"}</Button>
                 </div>
                 <div className='grid [--size:15ch] md:[--size:20ch] grid-cols-[repeat(auto-fill,minmax(var(--size),1fr))] gap-4'>
-                    {entity.ideas.map(idea => <Card key={`idea-${idea.id}`} className={cn("p-0 gap-4 aspect-square", (idea.participants??[]).length > 0 && "border-primary", (idea.color && idea.color in backgroundColorMapping) ? backgroundColorMapping[idea.color] : backgroundColorMapping.default)}>
-                        <CardHeader className="p-4 pb-0 flex-1 flex flex-col items-center justify-center gap-1 text-center">
-                            <CardTitle>
-                                {idea.name}
-                            </CardTitle>
-                            {idea.link && <Button variant={"link"} asChild><a href={idea.link} target="_blank"><LucideExternalLink/>Voir le produit</a></Button>}
-                        </CardHeader>
-                        <CardFooter className="p-4 pt-0 block space-y-4">
-                            {(idea.participants??[]).length > 0 && <p className="text-sm"><LucideCheckCircle2 className="inline size-[1em]"/> {participantsString(idea.participants??[])}</p>}
-                            {(idea.participants??[]).length === 0 && <Button className="w-full" disabled={ideaLoading === idea.id} onClick={() => handleIdeaBook(idea.id)}>{ideaLoading === idea.id && <Spinner/>}Je le prends</Button>}
-                            {(idea.participants??[]).length > 0 && !(idea.participants??[]).includes(participant) && <Button className="w-full" disabled={ideaLoading === idea.id} onClick={() => handleIdeaBook(idea.id)}>{ideaLoading === idea.id && <Spinner/>}Je participe</Button>}
-                            {participant && (idea.participants??[]).includes(participant) && <Button className="w-full" variant={"outline"} disabled={ideaLoading === idea.id} onClick={() => handleIdeaUnbook(idea.id)}>{ideaLoading === idea.id && <Spinner/>}Annuler</Button>}
-                        </CardFooter>
-                    </Card>)}
+                    {entity.ideas.map(idea => <Card key={`idea-${idea.id}`} className={cn("p-0 gap-4 group", idea.participants.length > 0 && "ring-primary", (idea.color && idea.color in backgroundColorMapping) ? backgroundColorMapping[idea.color] : backgroundColorMapping.default)}>
+                        {editingIdea === idea.id && <IdeaForm entity={idea} onSubmit={(values) => handleIdeaEdit(values)} onCancel={() => setEditingIdea(null)}/>}
+                        {editingIdea !== idea.id && <div className="p-4 w-full h-full grid grid-rows-[1fr_auto_1fr] gap-4">
+                            <div className="relative flex justify-center">
+                                {idea.authorId && <Dialog>
+                                    <DropdownMenu>
+                                        <DropdownMenuTrigger render={<Button variant={"outline"} size="xs" className="truncate" disabled={idea.authorId !== participant?.id}/>}>
+                                            Idée de {idea.author.name} {idea.authorId === participant?.id && <LucideEllipsisVertical/>}
+                                        </DropdownMenuTrigger>
+                                        {idea.authorId === participant?.id && <DropdownMenuContent align="start" side="right">
+                                            <DropdownMenuItem onClick={() => setEditingIdea(idea.id)}><LucidePen/>Modifier</DropdownMenuItem>
+                                            <DialogTrigger render={<DropdownMenuItem variant="destructive"/>}>
+                                                <LucideTrash/> Supprimer
+                                            </DialogTrigger>
+                                        </DropdownMenuContent>}
+                                    </DropdownMenu>
+                                    {idea.authorId === participant?.id && <DialogContent>
+                                        <DialogHeader>
+                                            <DialogTitle>Supprimer l'idée</DialogTitle>
+                                            <DialogDescription>Vous êtes sur le point de supprimer cette idée</DialogDescription>
+                                        </DialogHeader>
+                                        <p className="text-sm">En êtes-vous sûr ? </p>
+                                        <DialogFooter>
+                                            <DialogClose render={<Button variant={"ghost"}/>}>
+                                                Annuler
+                                            </DialogClose>
+                                            <Button variant={"destructive"} onClick={() => handleIdeaDelete(idea.id)}>Supprimer</Button>
+                                        </DialogFooter>
+                                    </DialogContent>}
+                                </Dialog>}
+                            </div>
+                                
+                            <CardHeader className="p-0 flex-1 flex flex-col items-center justify-center gap-1 text-center min-h-[5em]">
+                                <CardTitle>
+                                    {idea.name}
+                                </CardTitle>
+                                {idea.link && <Button variant={"link"} render={<a href={idea.link} target="_blank"/>}><LucideExternalLink/>Voir l'idée</Button>}
+                            </CardHeader>
+                            <CardFooter className="p-0 relative">
+                                <Button tabIndex={-1} className="opacity-0 pointer-events-none"/>
+                                <div className="absolute left-0 bottom-0 w-full transition-all group-hover:opacity-0 group-hover:-translate-y-2">
+                                    {idea.participants.length > 0 && <p className="text-sm text-center"><LucideCheckCircle2 className="inline size-[1em]"/> {participantsString(idea.participants)}</p>}
+                                </div>
+                                <div className="absolute left-0 bottom-0 w-full flex gap-2 opacity-0 transition-all translate-y-2 group-hover:opacity-100 group-hover:translate-y-0">
+                                    {idea.participants.length === 0 && <Button className="flex-1" disabled={ideaLoading === idea.id} onClick={() => handleIdeaBook(idea.id)}>{ideaLoading === idea.id && <Spinner/>}Je le prends</Button>}
+                                    {idea.participants.length > 0 && !idea.participants.map(p => p.id).includes(participant?.id ?? -1) && <Button className="flex-1" disabled={ideaLoading === idea.id} onClick={() => handleIdeaBook(idea.id)}>{ideaLoading === idea.id && <Spinner/>}Je participe</Button>}
+                                    {participant && idea.participants.map(p =>p.id).includes(participant.id) && <Button className="flex-1" variant={"outline"} disabled={ideaLoading === idea.id} onClick={() => handleIdeaUnbook(idea.id)}>{ideaLoading === idea.id && <Spinner/>}Annuler</Button>}
+                                </div>
+                            </CardFooter>
+                            </div>}
+                        </Card>)}
+                    {entity.allowIdeaProposal && !newIdea &&<Card className={cn("border-2 border-dashed p-0 min-h-[15ch]")}>
+                        <Button variant={"ghost"} className="h-auto size-full rounded-[inherit]" onClick={() => setNewIdea(true)}><LucidePlus/>Ajouter une idée</Button>
+                    </Card>}
+                    {entity.allowIdeaProposal && newIdea && <IdeaForm onSubmit={handleIdeaAdd} onCancel={() => setNewIdea(false)}/>}
                 </div>
             </div>
             <div className={cn("absolute size-full inset-0 flex items-center justify-center transition-all opacity-0 pointer-events-none", entity.authorId === store.user?.id && privacy && "opacity-100 pointer-events-auto")}>
@@ -130,8 +206,7 @@ export function ListDetails({entity, loading}: {entity: ListType, loading: boole
                     </CardHeader>
                     <CardContent className="text-sm">Vous risquez de voir les participations de chacuns. Mieux vaut garder la surprise si cette liste vous concerne!</CardContent>
                     <CardFooter className="grid gap-2">
-                        <Button variant={"outline"} onClick={() => setPrivacy(false)}>Afficher la liste juste pour cette fois</Button>
-                        <Button onClick={handleSavingDisabledPrivacy}>Toujours afficher la liste</Button>
+                        <Button onClick={handleSavingDisabledPrivacy} variant={"outline"}>Afficher quand même la liste</Button>
                     </CardFooter>
                 </Card>
             </div>
@@ -142,23 +217,25 @@ export function ListDetails({entity, loading}: {entity: ListType, loading: boole
                     <DialogTitle>Qui es-tu ?</DialogTitle>
                     <DialogDescription>Trouve ton nom dans la liste ci-dessous</DialogDescription>
                 </DialogHeader>
-                <div className="flex gap-2 flex-wrap">{entity.participants?.map(participantItem => <Button variant={participant === participantItem ? "default" : "outline"} onClick={() => handleParticipantSelect(participantItem)}>{participantItem}</Button>)}</div>
+                <div className="flex gap-2 flex-wrap">{entity.participants.map(({id, name}) => <Button variant={participant?.id === id ? "default" : "outline"} onClick={() => handleParticipantSelect(id)}>{name}</Button>)}</div>
             </DialogContent>
         </Dialog>
     </div>
 }
 
 export function ListTeaser({entity}: {entity: ListType}) {
-    return <Button variant={"ghost"} className="block h-auto text-left" asChild>
-        <Link to={`/list/${entity.id}`}>
-            <div className="mb-1">{entity.name}</div>
-            <div className="text-muted-foreground text-xs font-normal">{(entity.participants??[]).length} participants</div>
-            <div className="text-muted-foreground text-xs font-normal">{(entity.ideas??[]).length} idées</div>
-        </Link>
-    </Button>
+    return <Item variant={"outline"} render={<Link to={`/list/${entity.id}`}/>}>
+        <ItemContent>
+            <ItemTitle>{entity.name}</ItemTitle>
+            <ItemDescription>
+                <div>{entity.participants.length} participants</div>
+                <div>{entity.ideas.length} idées</div>
+            </ItemDescription>
+        </ItemContent>
+    </Item>
 }
 
-type ListEditionType = Omit<ListInsertType, 'participants'> & {ideas: IdeaInsertType[], participants: {name: string}[]}
+type ListEditionType = ListInsertType & {ideas: IdeaInsertType[], participants: ParticipantInsertType[]}
 
 const exampleIdeas = [
     'Un skateboard',
@@ -193,25 +270,45 @@ function pickValue(array: string[]) {
 export function ListForm({entity}: {entity?: ListEditionType}) {
     const [loading, setLoading] = useState(false)
     const navigate = useNavigate()
-    const {user} = useAppStore()
+    const {user, disabledListPrivacy, resetPrivacy, saveDisabledPrivacy} = useAppStore()
+    const privacy = useMemo(() => !disabledListPrivacy.includes(entity?.id || ""), [disabledListPrivacy])
+    const [values, setValues] = useState<ListEditionType|null>(entity ?? null)
     if (!user) return
 
     const {
         register,
         handleSubmit,
         control,
-        getValues
+        getValues,
+        subscribe,
+        setValue
     } = useForm<ListEditionType>({defaultValues: entity ?? {}})
     const ideas = useFieldArray({name: 'ideas', control})
     const participants = useFieldArray({name: 'participants', control})
+
+      useEffect(() => {
+    // make sure to unsubscribe;
+    const unsubscribe = subscribe({
+      formState: {
+        values: true,
+      },
+      callback: ({ values }) => {
+        console.log('coucou', values)
+        setValues(values)
+      },
+    })
+
+    return () => unsubscribe()
+
+    // You can also just return the subscribe
+    // return subscribe({ callback: ({ values }) => console.log(values) });
+  }, [subscribe])
 
     const onSubmit: SubmitHandler<ListEditionType> = async (data) => {
         setLoading(true)
         const listData = {
             ...data,
-            user: user.id, 
-            token: user.token, 
-            participants: data.participants.map(p => p.name),
+            participants: data.participants,
             ideas: data.ideas.map(idea => ({...idea, color: idea.color ?? pickValue(availableColors)}))
         }
         if (entity) {
@@ -237,24 +334,8 @@ export function ListForm({entity}: {entity?: ListEditionType}) {
     }
 
     const formActions = <>
+        <Button variant={"ghost"} render={<Link to='/'/>}>Annuler</Button>
         <Button type="submit" disabled={loading}>{loading && <Spinner/>}{entity ? "Enregistrer la liste" : "Créer la liste"}</Button>
-        {/* {entity && <Dialog>
-            <DialogTrigger asChild>
-                <Button type="button" variant={"destructive"}>Supprimer la liste</Button>
-            </DialogTrigger>
-            <DialogContent>
-                <DialogHeader>
-                    <DialogTitle>Etes-vous sûr ?</DialogTitle>
-                    <DialogDescription>Vous êtes sur le point de supprimer définitivement cette liste.</DialogDescription>
-                </DialogHeader>
-                <DialogFooter className="flex gap-2 justify-end">
-                    <DialogClose asChild>
-                        <Button type="button" variant={"ghost"}>Annuler</Button>
-                    </DialogClose>
-                    <Button type="button" variant={"destructive"}>Supprimer la liste</Button>
-                </DialogFooter>
-            </DialogContent>
-        </Dialog>} */}
     </>
 
     return <form onSubmit={handleSubmit(onSubmit)} className="grid md:grid-cols-[30ch_1fr] gap-6">
@@ -264,19 +345,48 @@ export function ListForm({entity}: {entity?: ListEditionType}) {
             <FieldGroup>
                 <Field>
                     <FieldLabel htmlFor="name">Nom de la liste</FieldLabel>
-                    <Input defaultValue={"Ma super liste de noël 2025"} {...register("name")} />
+                    <Input defaultValue={"Ma super liste de noël 2025"} id="name" {...register("name")} />
                 </Field>
             </FieldGroup>
             <FieldGroup>
                 <Field>
-                    <FieldLabel htmlFor="name">Participants</FieldLabel>
+                    <FieldLabel>Participants</FieldLabel>
                     <div className="grid gap-2">
-                        {participants.fields.map((field, index) => <div className="flex gap-2" key={field.id}>
-                            <Input {...register(`participants.${index}.name`)} />
-                            <Button type="button" variant={"outline"} size={"icon"} onClick={() => participants.remove(index)}><LucideX/></Button>
-                        </div>)}
+                        {participants.fields.map((field, index) => <InputGroup key={field.id}>
+                            <InputGroupInput {...register(`participants.${index}.name`)}/>
+                            <InputGroupAddon align="inline-end">
+                                <Dialog>
+                                    <DialogTrigger render={<InputGroupButton type="button" variant={"ghost"}/>}>
+                                        <LucideX/>
+                                    </DialogTrigger>
+                                    <DialogContent>
+                                        <DialogHeader>
+                                            <DialogTitle>Retirer le participant</DialogTitle>
+                                            <DialogDescription>Attention, cette action est irréversible</DialogDescription>
+                                        </DialogHeader>
+                                        En êtes-vous sûr ?
+                                        <div className="flex justify-end gap-2">
+                                            <DialogClose render={<Button variant="ghost"/>}>Annuler</DialogClose>
+                                            <Button type="button" variant={"destructive"} onClick={() => participants.remove(index)}>Retirer {field.name}</Button>
+                                        </div>
+                                    </DialogContent>
+                                </Dialog>
+                            </InputGroupAddon>
+                        </InputGroup>)}
                     </div>
-                    <Button type="button" variant={"outline"} onClick={() => participants.append({name: pickValue(exampleProviders)})}><LucidePlus/>Ajouter un participant</Button>
+                    <Button type="button" variant={"outline"} className="border-2 border-dashed" onClick={() => participants.append({name: pickValue(exampleProviders)})}><LucidePlus/>Ajouter un participant</Button>
+                </Field>
+                <Field orientation={"horizontal"}>
+                    <Switch id="allowIdeaProposal" {...register("allowIdeaProposal")} checked={values?.allowIdeaProposal ?? false} onCheckedChange={(value) => setValue("allowIdeaProposal", value)}/>
+                    <FieldLabel htmlFor="allowIdeaProposal">
+                            Accepter les propositions d'idées
+                            <Tooltip>
+                                <TooltipTrigger render={<Button variant={"ghost"} size="icon-sm"/>}>
+                                    <LucideCircleQuestionMark/>
+                                </TooltipTrigger>
+                                <TooltipContent>Les participants pourront ajouter des idées à cette liste</TooltipContent>
+                            </Tooltip>
+                    </FieldLabel>
                 </Field>
             </FieldGroup>
             <Separator/>
@@ -285,32 +395,61 @@ export function ListForm({entity}: {entity?: ListEditionType}) {
             </div>
         </FieldSet>
         <FieldSet>
-            <FieldLegend>Trouvez des idées originales</FieldLegend>
+            <FieldLegend className="flex items-center gap-2">
+                Trouvez des idées originales
+            </FieldLegend>
             <FieldDescription>Chaque participant pourra ensuite choisir la ou les idées qui l'intéressent.</FieldDescription>
             <div className="grid grid-cols-[repeat(auto-fill,minmax(20ch,1fr))] gap-4">
-                {ideas.fields.map((field, index) => <Card key={field.id} className="md:aspect-square p-0">
-                    <CardContent className="p-4">
-                        <FieldGroup>
-                            <Field>
-                                <div className="flex gap-2 items-center">
-                                    <FieldLabel htmlFor={`ideas.${index}.name`} className="flex-1">Idée n°{index+1}</FieldLabel>
-                                    <Button type="button" variant={"ghost"} size={"icon-sm"} onClick={() => ideas.remove(index)}><LucideX/></Button>
+                {ideas.fields.map((field, index) => <InputGroup key={field.id} className={cn("w-full transition-all md:min-h-[15ch]", field.authorId && privacy && "blur-md pointer-events-none")}>
+                    <InputGroupTextarea  {...register(`ideas.${index}.name`)} placeholder={`Idée n°${index+1}`}/>
+                    <InputGroupAddon align={"block-start"} className="self-start w-full">
+                        <span className="flex-1">Idée n°{index+1}</span>
+                        <Dialog>
+                            <Tooltip>
+                                <TooltipTrigger render={<DialogTrigger render={<InputGroupButton type="button" variant={"ghost"}/>}/>}>
+                                    <LucideX/>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                    Supprimer l'idée
+                                </TooltipContent>
+                            </Tooltip>
+                            <DialogContent>
+                                <DialogHeader>
+                                    <DialogTitle>Supprimer l'idée</DialogTitle>
+                                    <DialogDescription>Attention, cette action est irréversible</DialogDescription>
+                                </DialogHeader>
+                                En êtes-vous sûr ?
+                                <div className="flex justify-end gap-2">
+                                    <DialogClose render={<Button variant="ghost"/>}>Annuler</DialogClose>
+                                    <Button type="button" variant={"destructive"}onClick={() => ideas.remove(index)}>Supprimer l'idée</Button>
                                 </div>
-                                <Textarea {...register(`ideas.${index}.name`)}/>
-                                {field.link === null && <Button type="button" variant="link" size="sm" className="text-left justify-start" onClick={() => ideas.update(index, {...getValues(`ideas.${index}`), link: ""})}><LucidePlusCircle/>Ajouter un lien</Button>}
-                            </Field>
-                            {field.link !== null && <Field>
-                                <div className="flex gap-2 items-center">
-                                    <FieldLabel htmlFor={`ideas.${index}.link`} className="flex-1">Lien</FieldLabel>
-                                    <Button type="button" variant="link" className="p-0 h-auto" onClick={() => ideas.update(index, {...getValues(`ideas.${index}`), link: null})}><LucideX/>Retirer le lien</Button>    
-                                </div>
-                                <Input {...register(`ideas.${index}.link`)}/>
-                            </Field>}
-                        </FieldGroup>
-                    </CardContent>
-                </Card>)}
-                <Button type="button" variant={"outline"} className="border-2 border-dashed md:aspect-square w-full h-auto" onClick={() => ideas.append({name: pickValue(exampleIdeas), link: null})}>Ajouter une idée</Button>
+                            </DialogContent>
+                        </Dialog>
+                    </InputGroupAddon>
+                    <InputGroupAddon align={"block-end"} className="justify-end">
+                        {field.link !== null && <InputGroup>
+                            <InputGroupAddon align={"inline-start"}><LucideLink/></InputGroupAddon>
+                            <InputGroupInput {...register(`ideas.${index}.link`)}/>
+                            <InputGroupAddon align={"inline-end"}>
+                                <Tooltip>
+                                    <TooltipTrigger render={ <InputGroupButton type="button" variant={"ghost"}/>} onClick={() => ideas.update(index, {...getValues(`ideas.${index}`), link: null})}>
+                                        <LucideX/>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                        Supprimer le lien
+                                    </TooltipContent>
+                                </Tooltip>
+                            </InputGroupAddon>
+                        </InputGroup>}
+                        {field.link == null && <Button variant="ghost" onClick={() => ideas.update(index, {...getValues(`ideas.${index}`), link: ""})}><LucidePlus/>Ajouter un lien</Button>}
+                    </InputGroupAddon>
+                </InputGroup>)}
+                <Button type="button" variant={"outline"} className="border-2 border-dashed w-full h-auto md:min-h-[15ch]" onClick={() => ideas.append({name: pickValue(exampleIdeas), link: null})}><LucidePlus/>Ajouter une idée</Button>
             </div>
+            {values && values.allowIdeaProposal && <div>
+                {entity && privacy && <Button variant={"link"} onClick={() => saveDisabledPrivacy(entity.id??"")}><LucideEye/>Afficher les idées proposées par les participants</Button>}
+                {entity && !privacy && <Button variant={"link"} onClick={() => resetPrivacy(entity.id??"")}><LucideEyeOff/>Cacher les idées proposées par les participants</Button>}
+            </div>}
         </FieldSet>
         <div className="md:hidden grid gap-4">
             {formActions}

@@ -1,5 +1,4 @@
 import * as React from "react"
-import { Slot } from "@radix-ui/react-slot"
 import { cva, type VariantProps } from "class-variance-authority"
 
 import { cn } from "@/lib/utils"
@@ -19,14 +18,12 @@ function Title({
   className,
   variant,
   tag,
-  asChild = false,
   ...props
 }: React.ComponentProps<"h1"> &
   VariantProps<typeof titleVariants> & {
-    asChild?: boolean
     tag?: VariantProps<typeof titleVariants>['variant']
   }) {
-  const Comp = asChild ? Slot : tag ? tag : variant ? variant : "h1"
+  const Comp = tag ? tag : variant ? variant : "h1"
 
   return (
     <Comp

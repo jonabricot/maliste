@@ -1,0 +1,1 @@
+ALTER TABLE "list" ADD COLUMN "allowIdeaProposal" boolean DEFAULT false;

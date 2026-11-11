@@ -3,12 +3,9 @@ import {useQuery} from 'react-query'
 import { client } from "@/api/client"
 import { ListDetails, ListForm } from "@/components/entity/list"
 import { Button } from "@/components/ui/button"
-import { useEffect, useMemo } from "react"
-import { useAppStore } from "@/store"
 import { LucideArrowLeft } from "lucide-react"
 
 export function ListPage() {
-    const {user, sharedList, addSharedList} = useAppStore()
     const {id} = useParams()
     if (!id) return
 
@@ -20,15 +17,9 @@ export function ListPage() {
         }
     })
 
-    useEffect(() => {
-        if(data && user && data.authorId !== user.id && !sharedList.includes(data.id)) {
-            addSharedList(data.id)
-        }
-    }, [data, user, sharedList])
-
     return <div className="container mx-auto p-4 space-y-12">
-        <Button variant={"link"} asChild>
-            <Link to="/"><LucideArrowLeft className="size-[1em]"/>Retour à l'accueil</Link>
+        <Button variant={"link"} size="none" render={<Link to="/"/>}>
+            <LucideArrowLeft className="size-[1em]"/>Retour à l'accueil
         </Button>
         {data && <ListDetails entity={data} loading={isFetching}/>}
     </div>
@@ -36,8 +27,8 @@ export function ListPage() {
 
 export function ListCreatePage() {
     return <div className="container mx-auto p-4 space-y-12">
-        <Button variant={"link"} asChild>
-            <Link to="/"><LucideArrowLeft className="size-[1em]"/>Retour à l'accueil</Link>
+        <Button variant={"link"} size="none" render={<Link to="/"/>}>
+            <LucideArrowLeft className="size-[1em]"/>Retour à l'accueil
         </Button>
         <ListForm/>
     </div>
@@ -55,22 +46,10 @@ export function ListEditPage() {
         }
     })
 
-    const editionEntity = useMemo(() => {
-        if (!data) return null
-
-        const {participants, ideas, author: _, createdAt: ___, ...entity} = data
-
-        return {
-            ...entity,
-            participants: (participants??[]).map(name => ({name})),
-            ideas: (ideas??[]).map(({createdAt: _, listId: __, participants: ___, ...idea}) => idea)
-        }
-    }, [data])
-
     return <div className="container mx-auto p-4 space-y-12">
-        <Button variant={"link"} asChild>
-            <Link to="/"><LucideArrowLeft className="size-[1em]"/>Retour à l'accueil</Link>
+        <Button variant={"link"} size="none" render={<Link to="/"/>}>
+            <LucideArrowLeft className="size-[1em]"/>Retour à l'accueil
         </Button>
-        {editionEntity && <ListForm entity={editionEntity}/>}
+        {data && <ListForm entity={data}/>}
     </div>
 }

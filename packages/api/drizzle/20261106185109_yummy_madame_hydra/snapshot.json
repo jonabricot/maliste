@@ -1,0 +1,105 @@
+{
+  "type": "diff",
+  "version": "9",
+  "dialect": "postgres",
+  "id": "75d6d5db-7894-4efa-8966-d828f05315c0",
+  "prevIds": [
+    "ed29cb5f-a4ae-45a5-90ab-9f988c8f2cdc"
+  ],
+  "footprints": [
+    {
+      "statementType": "drop_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "idea"
+      ],
+      "writes": [
+        "s|fk|public.idea.idea_authorId_user_id_fkey",
+        "n|fk|public.idea.idea_authorId_user_id_fkey",
+        "e|fk|public.idea.idea_authorId_user_id_fkey",
+        "n|con|public.idea.idea_authorId_user_id_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.idea",
+        "n|sch|public",
+        "e|col|public.idea.authorId"
+      ]
+    },
+    {
+      "statementType": "alter_column",
+      "statementTarget": [
+        "column",
+        "public",
+        "idea",
+        "authorId"
+      ],
+      "writes": [
+        "s|colprop|public.idea.authorId.type",
+        "s|colprop|public.idea.authorId.default"
+      ],
+      "reads": [
+        "n|tbl|public.idea",
+        "n|sch|public",
+        "n|col|public.idea.authorId"
+      ],
+      "sqlHash": "5e9190f9c8e0bc34"
+    },
+    {
+      "statementType": "create_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "idea"
+      ],
+      "writes": [
+        "s|fk|public.idea.idea_authorId_participant_id_fkey",
+        "n|fk|public.idea.idea_authorId_participant_id_fkey",
+        "e|fk|public.idea.idea_authorId_participant_id_fkey",
+        "n|con|public.idea.idea_authorId_participant_id_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.idea",
+        "n|sch|public",
+        "n|tbl|public.participant",
+        "n|sch|public",
+        "n|col|public.idea.authorId",
+        "n|col|public.participant.id",
+        "e|uniqueness|public.participant.id"
+      ]
+    }
+  ],
+  "deltas": [
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "idea",
+        "name": "idea_authorId_participant_id_fkey",
+        "nameExplicit": false,
+        "columns": [
+          "authorId"
+        ],
+        "schemaTo": "public",
+        "tableTo": "participant",
+        "columnsTo": [
+          "id"
+        ],
+        "onUpdate": "NO ACTION",
+        "onDelete": "NO ACTION",
+        "entityType": "fks"
+      }
+    },
+    {
+      "op": "drop",
+      "key": "fks\u0000[\"public\",\"idea\",\"idea_authorId_user_id_fkey\"]"
+    },
+    {
+      "op": "alter",
+      "key": "columns\u0000[\"public\",\"idea\",\"authorId\"]",
+      "set": {
+        "type": "integer"
+      }
+    }
+  ]
+}

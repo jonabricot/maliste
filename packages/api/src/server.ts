@@ -256,10 +256,10 @@ export const route = app
       await db.insert(schema.participant).values(newParticipants.map(participant => ({...participant, listId: foundedList.id, authorId: user.id})))
     }
     for (const updatedParticipant of updatedParticipants) {
-      const {id, ...idea} = updatedParticipant
+      const {id, ...participant} = updatedParticipant
 
       if(id) {
-        await db.update(schema.idea).set(idea).where(eq(schema.idea.id, id))
+        await db.update(schema.participant).set(participant).where(eq(schema.participant.id, id))
       }
     }
 

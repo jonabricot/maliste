@@ -15,7 +15,7 @@ COPY --from=build /usr/src/app/env.sh /docker-entrypoint.d/env.sh
 RUN chmod +x /docker-entrypoint.d/env.sh
 WORKDIR /prod/web
 EXPOSE 3001
-ENTRYPOINT ["/docker-entrypoint.sh"]
+ENTRYPOINT ["/docker-entrypoint.d/env.sh"]
 CMD [ "pnpm", "start" ]
 
 FROM base AS api

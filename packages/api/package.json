@@ -14,17 +14,18 @@
     "start": "pnpm drizzle-kit migrate --config=dist/drizzle.config.js && node dist/src/index.js"
   },
   "dependencies": {
+    "@better-auth/drizzle-adapter": "^1.7.20",
     "@hono/node-server": "^1.19.18",
     "@hono/zod-validator": "^0.7.6",
     "better-auth": "^1.7.17",
     "dotenv": "^17.4.2",
+    "drizzle-kit": "1.0.0-rc.5",
     "drizzle-orm": "1.0.0-rc.5",
     "hono": "^4.13.16",
     "link-preview-js": "^4.0.4",
     "pg": "^8.23.1",
     "postgres": "^3.4.9",
-    "zod": "^4.6.7",
-    "drizzle-kit": "1.0.0-rc.5"
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@types/node": "^20.19.43",

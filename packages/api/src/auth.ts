@@ -1,5 +1,5 @@
 import { betterAuth } from "better-auth";
-import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { drizzleAdapter } from "@better-auth/drizzle-adapter/relations-v2";
 import { db } from "./db/client.ts";
 import { anonymous } from "better-auth/plugins"
 import { createMiddleware } from "hono/factory";
@@ -10,7 +10,7 @@ import { HTTPException } from "hono/http-exception";
 export const auth = betterAuth({
     database: drizzleAdapter(db, {
         provider: "pg", // or "mysql", "sqlite"
-		schema
+		schema,
     }),
     emailAndPassword: { 
         enabled: true, 

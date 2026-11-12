@@ -11,7 +11,7 @@ RUN pnpm deploy --filter=api --prod /prod/api
 
 FROM base AS web
 COPY --from=build /prod/web /prod/web
-COPY --from=build env.sh /docker-entrypoint.d/env.sh
+COPY --from=build /usr/src/app/env.sh /docker-entrypoint.d/env.sh
 RUN dos2unix /docker-entrypoint.d/env.sh
 RUN chmod +x /docker-entrypoint.d/env.sh
 WORKDIR /prod/web

@@ -122,25 +122,4 @@ export function IdeaForm({entity, onSubmit, onCancel}: {entity?: IdeaSelectType,
             </InputGroupAddon>
         </InputGroup>
     </form>
-
-    return <form onSubmit={handleSubmit(submitHandler)}>
-        <FieldGroup>
-            <Field>
-                <FieldLabel htmlFor={`name`} className="flex-1">Nom de l'idée</FieldLabel>
-                <Textarea {...register(`name`)}/>
-                {values?.link === null && <Button type="button" variant="link" size="none" className="text-left justify-start" onClick={() => setValue('link', '')}><LucidePlusCircle/>Ajouter un lien</Button>}
-            </Field>
-            {values?.link !== null && <Field>
-                <div className="flex gap-2 items-center">
-                    <FieldLabel htmlFor={`link`} className="flex-1">Lien</FieldLabel>
-                    <Button type="button" variant="link" className="p-0 h-auto" onClick={() => setValue('link', null)}><LucideX/>Retirer le lien</Button>    
-                </div>
-                <Input {...register(`link`)}/>
-            </Field>}
-            <div className="grid gap-2 ">
-                <Button type="button" variant={"outline"} onClick={() => onCancel && onCancel()}>Annuler</Button>
-                <Button type="submit" disabled={loading}>{loading && <Spinner/>}{entity?.id ? "Modifier l'idée": "Ajouter l'idée"}</Button>
-            </div>
-        </FieldGroup>
-    </form>
 }

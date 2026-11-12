@@ -18,7 +18,7 @@ export function ListPage() {
     })
 
     return <div className="container mx-auto p-4 space-y-12">
-        <Button variant={"link"} size="none" render={<Link to="/"/>}>
+        <Button variant={"link"} size="none" render={<Link to="/"/>} nativeButton={false}>
             <LucideArrowLeft className="size-[1em]"/>Retour à l'accueil
         </Button>
         {data && <ListDetails entity={data} loading={isFetching}/>}
@@ -27,7 +27,7 @@ export function ListPage() {
 
 export function ListCreatePage() {
     return <div className="container mx-auto p-4 space-y-12">
-        <Button variant={"link"} size="none" render={<Link to="/"/>}>
+        <Button variant={"link"} size="none" render={<Link to="/"/>} nativeButton={false}>
             <LucideArrowLeft className="size-[1em]"/>Retour à l'accueil
         </Button>
         <ListForm/>
@@ -47,7 +47,7 @@ export function ListEditPage() {
     })
 
     return <div className="container mx-auto p-4 space-y-12">
-        <Button variant={"link"} size="none" render={<Link to="/"/>}>
+        <Button variant={"link"} size="none" render={<Link to="/"/>} nativeButton={false}>
             <LucideArrowLeft className="size-[1em]"/>Retour à l'accueil
         </Button>
         {data && <ListForm entity={data}/>}

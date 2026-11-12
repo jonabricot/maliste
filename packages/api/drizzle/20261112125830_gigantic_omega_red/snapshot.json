@@ -1,0 +1,137 @@
+{
+  "type": "diff",
+  "version": "9",
+  "dialect": "postgres",
+  "id": "244110c5-bf64-4693-85fa-833634be6065",
+  "prevIds": [
+    "1f559431-2633-46ef-83c6-68e67dfb1e2e"
+  ],
+  "footprints": [
+    {
+      "statementType": "recreate_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "idea"
+      ],
+      "writes": [
+        "s|fk|public.idea.idea_listId_list_id_fkey",
+        "n|fk|public.idea.idea_listId_list_id_fkey",
+        "e|fk|public.idea.idea_listId_list_id_fkey",
+        "n|con|public.idea.idea_listId_list_id_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.idea",
+        "n|sch|public",
+        "n|tbl|public.list",
+        "n|sch|public",
+        "n|col|public.idea.listId",
+        "n|col|public.list.id",
+        "e|uniqueness|public.list.id"
+      ],
+      "sqlHash": "27122aa22fdde719"
+    },
+    {
+      "statementType": "recreate_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "list"
+      ],
+      "writes": [
+        "s|fk|public.list.list_authorId_user_id_fkey",
+        "n|fk|public.list.list_authorId_user_id_fkey",
+        "e|fk|public.list.list_authorId_user_id_fkey",
+        "n|con|public.list.list_authorId_user_id_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.list",
+        "n|sch|public",
+        "n|tbl|public.user",
+        "n|sch|public",
+        "n|col|public.list.authorId",
+        "n|col|public.user.id",
+        "e|uniqueness|public.user.id"
+      ],
+      "sqlHash": "b83f1275a890314a"
+    },
+    {
+      "statementType": "recreate_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "participant"
+      ],
+      "writes": [
+        "s|fk|public.participant.participant_listId_list_id_fkey",
+        "n|fk|public.participant.participant_listId_list_id_fkey",
+        "e|fk|public.participant.participant_listId_list_id_fkey",
+        "n|con|public.participant.participant_listId_list_id_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.participant",
+        "n|sch|public",
+        "n|tbl|public.list",
+        "n|sch|public",
+        "n|col|public.participant.listId",
+        "n|col|public.list.id",
+        "e|uniqueness|public.list.id"
+      ],
+      "sqlHash": "bdde3bede3f876f5"
+    },
+    {
+      "statementType": "recreate_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "idea"
+      ],
+      "writes": [
+        "s|fk|public.idea.idea_authorId_participant_id_fkey",
+        "n|fk|public.idea.idea_authorId_participant_id_fkey",
+        "e|fk|public.idea.idea_authorId_participant_id_fkey",
+        "n|con|public.idea.idea_authorId_participant_id_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.idea",
+        "n|sch|public",
+        "n|tbl|public.participant",
+        "n|sch|public",
+        "n|col|public.idea.authorId",
+        "n|col|public.participant.id",
+        "e|uniqueness|public.participant.id"
+      ],
+      "sqlHash": "5022ed504e080058"
+    }
+  ],
+  "deltas": [
+    {
+      "op": "alter",
+      "key": "fks\u0000[\"public\",\"idea\",\"idea_listId_list_id_fkey\"]",
+      "set": {
+        "onDelete": "CASCADE"
+      }
+    },
+    {
+      "op": "alter",
+      "key": "fks\u0000[\"public\",\"list\",\"list_authorId_user_id_fkey\"]",
+      "set": {
+        "onDelete": "CASCADE"
+      }
+    },
+    {
+      "op": "alter",
+      "key": "fks\u0000[\"public\",\"participant\",\"participant_listId_list_id_fkey\"]",
+      "set": {
+        "onDelete": "CASCADE"
+      }
+    },
+    {
+      "op": "alter",
+      "key": "fks\u0000[\"public\",\"idea\",\"idea_authorId_participant_id_fkey\"]",
+      "set": {
+        "onDelete": "SET NULL"
+      }
+    }
+  ]
+}

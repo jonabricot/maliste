@@ -20,17 +20,17 @@ export function HomePage() {
         <section>
             <div className="flex gap-4 items-center mb-4">
                 <Title variant={"h1"}>Vos listes</Title>
-                <Button render={<Link to="/list/create"/>}><LucidePlus/>Créer une liste</Button>
+                <Button render={<Link to="/list/create"/>} nativeButton={false}><LucidePlus/>Créer une liste</Button>
             </div>
             {data && data.lists.length === 0 && <p className="text-muted-foreground text-sm">Vous n'avez pas encore de liste.</p>}
             {data && data.lists.length > 0 && <div className="grid grid-cols-[repeat(auto-fill,minmax(20ch,1fr))] gap-4">
-                {data.lists.map(list => <ListTeaser entity={list}/>)}
+                {data.lists.map(list => <ListTeaser key={list.id} entity={list}/>)}
             </div>}
         </section>
         {data && data.sharedLists?.length > 0 && <section>
             <Title variant={"h1"} className="mb-4">Listes d'amis</Title>
             <div className="grid grid-cols-[repeat(auto-fill,minmax(20ch,1fr))] gap-4">
-                { data.sharedLists?.map(list => <ListTeaser entity={list}/>)}
+                { data.sharedLists?.map(list => <ListTeaser key={list.id} entity={list}/>)}
             </div>
         </section>}
     </div>

@@ -1,0 +1,199 @@
+{
+  "type": "diff",
+  "version": "9",
+  "dialect": "postgres",
+  "id": "1f559431-2633-46ef-83c6-68e67dfb1e2e",
+  "prevIds": [
+    "2118c79c-a230-4574-a6c7-edfa1f08f879"
+  ],
+  "footprints": [
+    {
+      "statementType": "recreate_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "participant_to_idea"
+      ],
+      "writes": [
+        "s|fk|public.participant_to_idea.participant_to_idea_ideaId_idea_id_fkey",
+        "n|fk|public.participant_to_idea.participant_to_idea_ideaId_idea_id_fkey",
+        "e|fk|public.participant_to_idea.participant_to_idea_ideaId_idea_id_fkey",
+        "n|con|public.participant_to_idea.participant_to_idea_ideaId_idea_id_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.participant_to_idea",
+        "n|sch|public",
+        "n|tbl|public.idea",
+        "n|sch|public",
+        "n|col|public.participant_to_idea.ideaId",
+        "n|col|public.idea.id",
+        "e|uniqueness|public.idea.id"
+      ],
+      "sqlHash": "73af4a0f24a7925b"
+    },
+    {
+      "statementType": "recreate_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "participant_to_idea"
+      ],
+      "writes": [
+        "s|fk|public.participant_to_idea.participant_to_idea_participantId_participant_id_fkey",
+        "n|fk|public.participant_to_idea.participant_to_idea_participantId_participant_id_fkey",
+        "e|fk|public.participant_to_idea.participant_to_idea_participantId_participant_id_fkey",
+        "n|con|public.participant_to_idea.participant_to_idea_participantId_participant_id_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.participant_to_idea",
+        "n|sch|public",
+        "n|tbl|public.participant",
+        "n|sch|public",
+        "n|col|public.participant_to_idea.participantId",
+        "n|col|public.participant.id",
+        "e|uniqueness|public.participant.id"
+      ],
+      "sqlHash": "d9733ece65440584"
+    },
+    {
+      "statementType": "recreate_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "user_to_participant"
+      ],
+      "writes": [
+        "s|fk|public.user_to_participant.user_to_participant_userId_user_id_fkey",
+        "n|fk|public.user_to_participant.user_to_participant_userId_user_id_fkey",
+        "e|fk|public.user_to_participant.user_to_participant_userId_user_id_fkey",
+        "n|con|public.user_to_participant.user_to_participant_userId_user_id_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.user_to_participant",
+        "n|sch|public",
+        "n|tbl|public.user",
+        "n|sch|public",
+        "n|col|public.user_to_participant.userId",
+        "n|col|public.user.id",
+        "e|uniqueness|public.user.id"
+      ],
+      "sqlHash": "13166b78500fc216"
+    },
+    {
+      "statementType": "recreate_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "user_to_participant"
+      ],
+      "writes": [
+        "s|fk|public.user_to_participant.user_to_participant_participantId_participant_id_fkey",
+        "n|fk|public.user_to_participant.user_to_participant_participantId_participant_id_fkey",
+        "e|fk|public.user_to_participant.user_to_participant_participantId_participant_id_fkey",
+        "n|con|public.user_to_participant.user_to_participant_participantId_participant_id_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.user_to_participant",
+        "n|sch|public",
+        "n|tbl|public.participant",
+        "n|sch|public",
+        "n|col|public.user_to_participant.participantId",
+        "n|col|public.participant.id",
+        "e|uniqueness|public.participant.id"
+      ],
+      "sqlHash": "ccdec53c654dcbb2"
+    },
+    {
+      "statementType": "recreate_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "shared_list"
+      ],
+      "writes": [
+        "s|fk|public.shared_list.shared_list_listId_list_id_fkey",
+        "n|fk|public.shared_list.shared_list_listId_list_id_fkey",
+        "e|fk|public.shared_list.shared_list_listId_list_id_fkey",
+        "n|con|public.shared_list.shared_list_listId_list_id_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.shared_list",
+        "n|sch|public",
+        "n|tbl|public.list",
+        "n|sch|public",
+        "n|col|public.shared_list.listId",
+        "n|col|public.list.id",
+        "e|uniqueness|public.list.id"
+      ],
+      "sqlHash": "eb641644d6905b29"
+    },
+    {
+      "statementType": "recreate_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "shared_list"
+      ],
+      "writes": [
+        "s|fk|public.shared_list.shared_list_userId_user_id_fkey",
+        "n|fk|public.shared_list.shared_list_userId_user_id_fkey",
+        "e|fk|public.shared_list.shared_list_userId_user_id_fkey",
+        "n|con|public.shared_list.shared_list_userId_user_id_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.shared_list",
+        "n|sch|public",
+        "n|tbl|public.user",
+        "n|sch|public",
+        "n|col|public.shared_list.userId",
+        "n|col|public.user.id",
+        "e|uniqueness|public.user.id"
+      ],
+      "sqlHash": "3935799cb3f7e681"
+    }
+  ],
+  "deltas": [
+    {
+      "op": "alter",
+      "key": "fks\u0000[\"public\",\"participant_to_idea\",\"participant_to_idea_ideaId_idea_id_fkey\"]",
+      "set": {
+        "onDelete": "CASCADE"
+      }
+    },
+    {
+      "op": "alter",
+      "key": "fks\u0000[\"public\",\"participant_to_idea\",\"participant_to_idea_participantId_participant_id_fkey\"]",
+      "set": {
+        "onDelete": "CASCADE"
+      }
+    },
+    {
+      "op": "alter",
+      "key": "fks\u0000[\"public\",\"user_to_participant\",\"user_to_participant_userId_user_id_fkey\"]",
+      "set": {
+        "onDelete": "CASCADE"
+      }
+    },
+    {
+      "op": "alter",
+      "key": "fks\u0000[\"public\",\"user_to_participant\",\"user_to_participant_participantId_participant_id_fkey\"]",
+      "set": {
+        "onDelete": "CASCADE"
+      }
+    },
+    {
+      "op": "alter",
+      "key": "fks\u0000[\"public\",\"shared_list\",\"shared_list_listId_list_id_fkey\"]",
+      "set": {
+        "onDelete": "CASCADE"
+      }
+    },
+    {
+      "op": "alter",
+      "key": "fks\u0000[\"public\",\"shared_list\",\"shared_list_userId_user_id_fkey\"]",
+      "set": {
+        "onDelete": "CASCADE"
+      }
+    }
+  ]
+}

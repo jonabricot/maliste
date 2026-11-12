@@ -5,7 +5,10 @@ services:
       - pgdata:/var/lib/postgresql
     ports:
       - 5432:5432
-    env_file: .env.local
+    environment:
+      POSTGRES_USER: "maliste"
+      POSTGRES_DB: "maliste"
+      POSTGRES_PASSWORD: "maliste"
 
 volumes:
   pgdata:

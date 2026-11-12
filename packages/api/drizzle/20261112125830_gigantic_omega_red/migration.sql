@@ -1,0 +1,4 @@
+ALTER TABLE "idea" DROP CONSTRAINT "idea_listId_list_id_fkey", ADD CONSTRAINT "idea_listId_list_id_fkey" FOREIGN KEY ("listId") REFERENCES "list"("id") ON DELETE CASCADE;--> statement-breakpoint
+ALTER TABLE "list" DROP CONSTRAINT "list_authorId_user_id_fkey", ADD CONSTRAINT "list_authorId_user_id_fkey" FOREIGN KEY ("authorId") REFERENCES "user"("id") ON DELETE CASCADE;--> statement-breakpoint
+ALTER TABLE "participant" DROP CONSTRAINT "participant_listId_list_id_fkey", ADD CONSTRAINT "participant_listId_list_id_fkey" FOREIGN KEY ("listId") REFERENCES "list"("id") ON DELETE CASCADE;--> statement-breakpoint
+ALTER TABLE "idea" DROP CONSTRAINT "idea_authorId_participant_id_fkey", ADD CONSTRAINT "idea_authorId_participant_id_fkey" FOREIGN KEY ("authorId") REFERENCES "participant"("id") ON DELETE SET NULL;

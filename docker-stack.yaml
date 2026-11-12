@@ -5,6 +5,7 @@ services:
     ports: 
       - 3000:3000
     env_file: .env.local
+    args_file: .env.local
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.api.rule=Host(`api.maliste.les-bouzous.fr`)"

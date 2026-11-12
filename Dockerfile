@@ -11,8 +11,12 @@ RUN pnpm deploy --filter=api --prod /prod/api
 
 FROM base AS web
 COPY --from=build /prod/web /prod/web
+COPY env.sh /docker-entrypoint.d/env.sh
+RUN dos2unix /docker-entrypoint.d/env.sh
+RUN chmod +x /docker-entrypoint.d/env.sh
 WORKDIR /prod/web
 EXPOSE 3001
+ENTRYPOINT ["/docker-entrypoint.sh"]
 CMD [ "pnpm", "start" ]
 
 FROM base AS api

@@ -1,0 +1,47 @@
+{
+  "type": "diff",
+  "version": "9",
+  "dialect": "postgres",
+  "id": "e0aca2f8-f6cf-452d-87f9-ebef315e72f5",
+  "prevIds": [
+    "244110c5-bf64-4693-85fa-833634be6065"
+  ],
+  "footprints": [
+    {
+      "statementType": "add_column",
+      "statementTarget": [
+        "column",
+        "public",
+        "idea",
+        "price"
+      ],
+      "writes": [
+        "s|col|public.idea.price",
+        "n|col|public.idea.price",
+        "e|col|public.idea.price"
+      ],
+      "reads": [
+        "n|tbl|public.idea",
+        "n|sch|public"
+      ]
+    }
+  ],
+  "deltas": [
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "idea",
+        "name": "price",
+        "type": "numeric",
+        "typeSchema": null,
+        "notNull": false,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    }
+  ]
+}

@@ -20,6 +20,7 @@ const ideaSchema = {
   id: z.int().optional().nullable(),
   name: z.string(),
   link: z.string().optional().nullable(),
+  price: z.string().optional().nullable(),
 }
 
 const participantSchema = {
@@ -115,7 +116,6 @@ export const route = app
   // })
   .get("/list", protectedMiddleware, async c => {
     const user = c.get('session')!.user
-    const shared = c.req.queries('shared')
 
     const userDb = await db.query.user.findFirst({
       where: { id: user.id },
@@ -124,12 +124,14 @@ export const route = app
           with: { 
             ideas: true,
             participants: true,
+            author: true
           }
         },
         sharedLists: {
           with: { 
             ideas: true,
             participants: true,
+            author: true
           }
         }
       },
@@ -273,6 +275,20 @@ export const route = app
 
     return c.json(updatedList)
   })
+  .delete("/list/:id",  protectedMiddleware, async c => {
+    const {id} = c.req.param()
+    const user = c.get('session')!.user
+
+    const foundedList = await db.query.list.findFirst({
+      where: {id, authorId: user.id}
+    })
+
+    if (!foundedList) return c.json(null, 404)
+
+    await db.delete(schema.list).where(and(eq(schema.list.id, id), eq(schema.list.authorId, user.id)))
+
+    return c.json(null, 200)
+  })
   .post("/list/:id/participate", zValidator('json', z.object({id: z.number()})), protectedMiddleware, async c => {
     const {id} = c.req.param()
     const participant = await c.req.json()
@@ -354,7 +370,7 @@ export const route = app
   })
   .post("/list/:list/idea/:idea", zValidator('json', ideaSchemaRequest), protectedMiddleware, async c => {
     const {list, idea} = c.req.param()
-    const {name, link} = await c.req.json<z.infer<typeof ideaSchemaRequest>>()
+    const {name, link, price} = await c.req.json<z.infer<typeof ideaSchemaRequest>>()
     const user = c.get('session')!.user
 
     const foundedList = await db.query.list.findFirst({
@@ -384,7 +400,7 @@ export const route = app
     const currentParticipant = userDb?.participations[0]
     if (!currentParticipant) return c.json({}, 403)
 
-    await db.update(schema.idea).set({name, link}).where(eq(schema.idea.id, foundedIdea.id))
+    await db.update(schema.idea).set({name, link, price}).where(eq(schema.idea.id, foundedIdea.id))
 
     const updatedList = await db.query.list.findFirst({
       with: { 

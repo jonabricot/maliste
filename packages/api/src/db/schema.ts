@@ -1,4 +1,4 @@
-import { boolean, integer, pgTable, primaryKey, text, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
+import { boolean, decimal, integer, pgTable, primaryKey, text, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
 import {user} from './auth-schema.ts'
 
 export * from './auth-schema.ts'
@@ -15,6 +15,7 @@ export const idea = pgTable("idea", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   name: varchar({ length: 255 }).notNull(),
   link: text(),
+  price: decimal(),
   listId: uuid().references(() => list.id, { onDelete: 'cascade' }),
   color: varchar({ length: 255 }),
   authorId: integer().references(() => participant.id, { onDelete: 'set null' }),

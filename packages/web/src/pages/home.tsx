@@ -2,6 +2,7 @@ import { client } from "@/api/client"
 import { ListTeaser } from "@/components/entity/list"
 import { Button } from "@/components/ui/button"
 import { Title } from "@/components/ui/title"
+import type { ListType } from "api/types"
 import { LucidePlus } from "lucide-react"
 import { useQuery } from "react-query"
 import { Link } from "react-router"
@@ -24,13 +25,13 @@ export function HomePage() {
             </div>
             {data && data.lists.length === 0 && <p className="text-muted-foreground text-sm">Vous n'avez pas encore de liste.</p>}
             {data && data.lists.length > 0 && <div className="grid grid-cols-[repeat(auto-fill,minmax(20ch,1fr))] gap-4">
-                {data.lists.map(list => <ListTeaser key={list.id} entity={list}/>)}
+                {data.lists.map(list => <ListTeaser key={list.id} entity={list as unknown as ListType}/>)}
             </div>}
         </section>
         {data && data.sharedLists?.length > 0 && <section>
             <Title variant={"h1"} className="mb-4">Listes d'amis</Title>
             <div className="grid grid-cols-[repeat(auto-fill,minmax(20ch,1fr))] gap-4">
-                { data.sharedLists?.map(list => <ListTeaser key={list.id} entity={list}/>)}
+                { data.sharedLists?.map(list => <ListTeaser key={list.id} entity={list as unknown as ListType}/>)}
             </div>
         </section>}
     </div>

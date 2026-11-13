@@ -4,6 +4,7 @@ import { client } from "@/api/client"
 import { ListDetails, ListForm } from "@/components/entity/list"
 import { Button } from "@/components/ui/button"
 import { LucideArrowLeft } from "lucide-react"
+import type { ListType } from "api/types"
 
 export function ListPage() {
     const {id} = useParams()
@@ -21,7 +22,7 @@ export function ListPage() {
         <Button variant={"link"} size="none" render={<Link to="/"/>} nativeButton={false}>
             <LucideArrowLeft className="size-[1em]"/>Retour à l'accueil
         </Button>
-        {data && <ListDetails entity={data} loading={isFetching}/>}
+        {data && <ListDetails entity={data as unknown as ListType} loading={isFetching}/>}
     </div>
 }
 
@@ -50,6 +51,6 @@ export function ListEditPage() {
         <Button variant={"link"} size="none" render={<Link to="/"/>} nativeButton={false}>
             <LucideArrowLeft className="size-[1em]"/>Retour à l'accueil
         </Button>
-        {data && <ListForm entity={data}/>}
+        {data && <ListForm entity={data as unknown as ListType}/>}
     </div>
 }

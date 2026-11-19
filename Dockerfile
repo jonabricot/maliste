@@ -6,8 +6,8 @@ COPY . /usr/src/app
 WORKDIR /usr/src/app
 RUN pnpm install --store-dir /var/cache/pnpm --frozen-lockfile
 RUN pnpm run -r build
-RUN pnpm deploy --filter=web --prod /prod/web
-RUN pnpm deploy --filter=api --prod /prod/api
+RUN pnpm deploy --filter=./packages/web --prod /prod/web
+RUN pnpm deploy --filter=./packages/api --prod /prod/api
 
 FROM base AS web
 COPY --from=build /prod/web /prod/web

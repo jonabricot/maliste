@@ -8,11 +8,15 @@ import { cors } from 'hono/cors'
 import { getLinkPreview } from 'link-preview-js'
 import { db } from './db/client.ts'
 import { auth, protectedMiddleware, sessionMiddleware } from './auth.ts'
+import admin from './controller/admin.ts'
+import { logger } from 'hono/logger'
+import { ideaParserFactory } from './business/idea/parser/index.ts'
 
 processEnvFile()
 
 const app = new Hono()
-app.use('*', cors({origin: [process.env.FRONTEND_URL!], credentials: true }))
+app.use(logger())
+app.use('*', cors({origin: [process.env.FRONTEND_URL!, process.env.ADMIN_FRONTEND_URL!], credentials: true }))
 app.use('*', sessionMiddleware)
 app.all("/api/auth/*", (c) => auth.handler(c.req.raw)); 
 
@@ -42,8 +46,8 @@ const ideaSchemaRequest = z.object({
   ...ideaSchema
 })
 
-
 export const route = app
+  .route('/admin', admin)
   .get("/list/:id", protectedMiddleware, async c => {
     const user = c.get('session')!.user
     const {id} = c.req.param()
@@ -138,6 +142,14 @@ export const route = app
     })
 
     return c.json(userDb)
+  })
+  .get("/idea/parse", async c => {
+    const {url} = c.req.query()
+
+    const body = await fetch(decodeURIComponent(url)).then(r => r.text())
+    const idea = ideaParserFactory(url, body)
+
+    return c.json(idea)
   })
   .post("/idea/:id/book", protectedMiddleware, async c => {
     const {id: idParam} = c.req.param()

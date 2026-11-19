@@ -1,12 +1,8 @@
 import { useForm, type SubmitHandler } from "react-hook-form"
-import { Field, FieldGroup, FieldLabel } from "../ui/field"
-import { Textarea } from "../ui/textarea"
-import type { IdeaInsertType, IdeaSelectType, IdeaType, ParticipantSelectType } from "api/types"
+import type { IdeaSelectType, IdeaType, ParticipantSelectType } from "api/types"
 import { Button } from "../ui/button"
-import { LucideCheckCircle2, LucideEllipsisVertical, LucideEuro, LucideExternalLink, LucideLink, LucidePen, LucidePlus, LucidePlusCircle, LucideTrash, LucideX } from "lucide-react"
-import { Input } from "../ui/input"
-import { useEffect, useState } from "react"
-import { Spinner } from "../ui/spinner"
+import { LucideCheckCircle2, LucideEllipsisVertical, LucideEuro, LucideExternalLink, LucideLink, LucidePen, LucidePlus, LucideTrash, LucideX } from "lucide-react"
+import { useEffect, useMemo, useState } from "react"
 import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput, InputGroupTextarea } from "../ui/input-group"
 import { cn } from "cn"
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog"
@@ -14,6 +10,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip"
 import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from "../ui/card"
 import { ResponsiveDropdownMenu, ResponsiveDropdownMenuContent, ResponsiveDropdownMenuItem, ResponsiveDropdownMenuTrigger } from "../reponsive-dropdown-menu"
 import { useDialog } from "@/hooks/dialog"
+import { Loader } from "../loader"
 
 export const availableColors = [
     'red',
@@ -80,7 +77,7 @@ function participantsString(participants: ParticipantSelectType[]) {
 }
 
 export function IdeaForm({entity, onSubmit, onCancel, ...props}: {entity?: IdeaSelectType, onSubmit: SubmitHandler<IdeaType>, onCancel?: () => void}) {
-    const [values, setValues] = useState<Partial<IdeaType>>(entity ?? { name: "", link: null })
+    const [values, setValues] = useState<Partial<IdeaType>>(entity ?? { name: "", link: null, price: null })
     const [loading, setLoading] = useState(false)
 
     const {
@@ -88,7 +85,7 @@ export function IdeaForm({entity, onSubmit, onCancel, ...props}: {entity?: IdeaS
         setValue,
         subscribe,
         handleSubmit
-    } = useForm<IdeaType>({defaultValues: entity ?? { name: "", link: null }})
+    } = useForm<IdeaType>({defaultValues: values })
 
     useEffect(() => {
         // make sure to unsubscribe;
@@ -148,7 +145,7 @@ export function IdeaForm({entity, onSubmit, onCancel, ...props}: {entity?: IdeaS
                 </InputGroup>}
                 <div className="flex gap-2 *:flex-1">
                     <Button type="button" variant={"outline"} onClick={() => onCancel && onCancel()}>Annuler</Button>
-                    <Button type="submit" disabled={loading}>{loading && <Spinner/>}{entity?.id ? "Modifier": "Ajouter"}</Button>
+                    <Button type="submit" disabled={loading}><Loader loading={loading}/>{entity?.id ? "Modifier": "Ajouter"}</Button>
                 </div>
             </InputGroupAddon>
         </InputGroup>
@@ -157,38 +154,53 @@ export function IdeaForm({entity, onSubmit, onCancel, ...props}: {entity?: IdeaS
 
 export function IdeaTeaser({entity, loading, participant, onEdit, onDelete, onBook, onUnbook, ...props}: {entity: IdeaType, loading?: boolean, participant?: ParticipantSelectType, onEdit?: () => void, onDelete?: () => void, onBook: () => void, onUnbook: () => void}) {
     const {triggerProps, dialogProps} = useDialog()
+    const state = useMemo(() => {
+        if (entity.participants.length === 0 ) return 'available'
+        if (entity.participants.length > 0 && !entity.participants.map(p => p.id).includes(participant?.id ?? -1)) return 'booked'
+        if (participant && entity.participants.map(p =>p.id).includes(participant.id)) return 'participating'
+    }, [entity.participants, participant])
 
-    return <Card className={cn("p-0 gap-4 group", entity.participants.length > 0 && "ring-primary", (entity.color && entity.color in backgroundColorMapping) ? backgroundColorMapping[entity.color] : backgroundColorMapping.default)} {...props}>
-        <div className="p-4 w-full h-full grid md:grid-rows-[1fr_auto_1fr] gap-4">
-            <div className="relative flex justify-center">
-                {entity.authorId && <>
-                    <ResponsiveDropdownMenu>
-                        <ResponsiveDropdownMenuTrigger render={<Button variant={"outline"} size="xs" className="truncate" disabled={entity.authorId !== participant?.id}/>}>
-                            Idée de {entity.author.name} {onEdit && <LucideEllipsisVertical/>}
-                        </ResponsiveDropdownMenuTrigger>
-                        {onEdit && <ResponsiveDropdownMenuContent>
-                            <ResponsiveDropdownMenuItem onClick={onEdit}><LucidePen/>Modifier</ResponsiveDropdownMenuItem>
-                            <ResponsiveDropdownMenuItem variant="destructive" {...triggerProps}>
-                                <LucideTrash/> Supprimer
-                            </ResponsiveDropdownMenuItem>
-                        </ResponsiveDropdownMenuContent>}
-                    </ResponsiveDropdownMenu>
-                    {onEdit && <Dialog {...dialogProps}>
-                        <DialogContent>
-                        <DialogHeader>
-                            <DialogTitle>Supprimer l'idée</DialogTitle>
-                            <DialogDescription>Vous êtes sur le point de supprimer cette idée</DialogDescription>
-                        </DialogHeader>
-                        <p className="text-sm">En êtes-vous sûr ? </p>
-                        <DialogFooter>
-                            <DialogClose render={<Button variant={"ghost"}/>}>
-                                Annuler
-                            </DialogClose>
-                            <Button variant={"destructive"} onClick={onDelete}>Supprimer</Button>
-                        </DialogFooter>
-                    </DialogContent>
-                </Dialog>}
-                </>}
+    function handleIdeaAction() {
+        if (state === "participating") onUnbook()
+        else onBook() 
+    }
+
+    return <Card className={cn("p-0 gap-4 group transition-all", entity.participants.length > 0 && "ring-primary", (entity.color && entity.color in backgroundColorMapping) ? backgroundColorMapping[entity.color] : backgroundColorMapping.default)} {...props}>
+        <div className="p-4 w-full h-full grid md:grid-rows-[auto_1fr_auto] gap-4">
+            <div className="grid grid-cols-[1fr_auto_1fr] items-center">
+                <div><LucideCheckCircle2 className={cn("size-[1em] opacity-0 transition-opacity", entity.participants.length > 0 && "opacity-100")}/></div>
+                <div>
+                    {entity.authorId && <>
+                        <ResponsiveDropdownMenu>
+                            <ResponsiveDropdownMenuTrigger render={<Button variant={"outline"} size="xs" className="truncate" disabled={entity.authorId !== participant?.id}/>}>
+                                Idée de {entity.author.name} {onEdit && <LucideEllipsisVertical/>}
+                            </ResponsiveDropdownMenuTrigger>
+                            {onEdit && <ResponsiveDropdownMenuContent>
+                                <ResponsiveDropdownMenuItem onClick={onEdit}><LucidePen/>Modifier</ResponsiveDropdownMenuItem>
+                                <ResponsiveDropdownMenuItem variant="destructive" {...triggerProps}>
+                                    <LucideTrash/> Supprimer
+                                </ResponsiveDropdownMenuItem>
+                            </ResponsiveDropdownMenuContent>}
+                        </ResponsiveDropdownMenu>
+                        {onEdit && <Dialog {...dialogProps}>
+                            <DialogContent>
+                                <DialogHeader>
+                                    <DialogTitle>Supprimer l'idée</DialogTitle>
+                                    <DialogDescription>Vous êtes sur le point de supprimer cette idée</DialogDescription>
+                                </DialogHeader>
+                                <p className="text-sm">En êtes-vous sûr ? </p>
+                                <DialogFooter>
+                                    <DialogClose render={<Button variant={"ghost"}/>}>
+                                        Annuler
+                                    </DialogClose>
+                                    <Button variant={"destructive"} onClick={onDelete}>Supprimer</Button>
+                                </DialogFooter>
+                            </DialogContent>
+                        </Dialog>}
+                    </>}
+                </div>
+                <div className="flex justify-end">
+                </div>
             </div>
                 
             <CardHeader className="p-0 flex-1 flex flex-col items-center justify-center gap-1 text-center md:min-h-[5em]">
@@ -201,12 +213,15 @@ export function IdeaTeaser({entity, loading, participant, onEdit, onDelete, onBo
             <CardFooter className="p-0 relative grid gap-2">
                 <Button tabIndex={-1} className="hidden md:block opacity-0 pointer-events-none"/>
                 <div className="md:absolute md:left-0 md:bottom-0 w-full transition-all md:group-hover:opacity-0 md:group-hover:-translate-y-2">
-                    {entity.participants.length > 0 && <p className="text-sm text-center"><LucideCheckCircle2 className="inline size-[1em]"/> {participantsString(entity.participants)}</p>}
+                    {entity.participants.length > 0 && <p className="text-sm text-center">{participantsString(entity.participants)}</p>}
                 </div>
                 <div className="md:absolute md:left-0 md:bottom-0 w-full flex gap-2 md:opacity-0 transition-all md:translate-y-2 md:group-hover:opacity-100 md:group-hover:translate-y-0">
-                    {entity.participants.length === 0 && <Button variant="outline" className={cn("flex-1")} disabled={loading} onClick={onBook}>{loading && <Spinner/>}Je le prends</Button>}
-                    {entity.participants.length > 0 && !entity.participants.map(p => p.id).includes(participant?.id ?? -1) && <Button variant="outline" className="flex-1" disabled={loading} onClick={onBook}>{loading && <Spinner/>}Je participe</Button>}
-                    {participant && entity.participants.map(p =>p.id).includes(participant.id) && <Button className="flex-1 bg-transparent" variant={"outline"} disabled={loading} onClick={onUnbook}>{loading && <Spinner/>}Annuler</Button>}
+                    <Button disabled={loading} onClick={handleIdeaAction} variant={"outline"} className={cn("flex-1", state === "participating" && "bg-transparent")}>
+                        <Loader loading={loading}/>
+                        {state === "available" && <>Je le prends</>}
+                        {state === "booked" && <>Je participe</>}
+                        {state === "participating" && <>Annuler</>}
+                    </Button>
                 </div>
             </CardFooter>
             </div>

@@ -14,5 +14,6 @@ export type UserInsertType = Omit<InferInsertModel<typeof user>, 'createdAt'>
 export type ParticipantSelectType = WithCreatedAtProperty<InferSelectModel<typeof participant>>
 export type ParticipantInsertType = Omit<InferInsertModel<typeof participant>, 'createdAt'>
 
+export type UserType = UserSelectType
 export type IdeaType = IdeaSelectType & { participants: ParticipantSelectType[], author: ParticipantSelectType }
 export type ListType = ListSelectType & { ideas: IdeaType[], author: UserSelectType, participants: ParticipantSelectType[] }

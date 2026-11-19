@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/button"
-import { Link, useNavigate } from "react-router"
 import { Title } from "@/components/ui/title"
 import type { IdeaInsertType, IdeaSelectType, IdeaType, ListInsertType, ListType, ParticipantInsertType, ParticipantSelectType } from "api/types"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../ui/card"
@@ -9,48 +8,51 @@ import { useAppStore } from "@/store"
 import { useDialog } from "@/hooks/dialog"
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog"
 import { client } from "@/api/client"
-import { useQueryClient } from "react-query"
 import { cn } from "@/lib/utils"
 import {useFieldArray, useForm, type SubmitHandler} from 'react-hook-form'
 import { Field, FieldContent, FieldDescription, FieldGroup, FieldLabel, FieldLegend, FieldSet, FieldTitle } from "../ui/field"
 import { Input } from "../ui/input"
 import { Separator } from "../ui/separator"
 import { availableColors, IdeaForm, IdeaTeaser } from "./idea"
-import { Spinner } from "../ui/spinner"
 import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput, InputGroupTextarea } from "../ui/input-group"
 import { Item, ItemActions, ItemContent, ItemDescription, ItemTitle } from "../ui/item"
 import { Switch } from "../ui/switch"
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip"
 import { ResponsiveDropdownMenu, ResponsiveDropdownMenuContent, ResponsiveDropdownMenuItem, ResponsiveDropdownMenuTrigger } from "../reponsive-dropdown-menu"
+import { useAuth } from "@/auth"
+import { Link, useNavigate, useRouter } from "@tanstack/react-router"
+import { useQueryClient } from "@tanstack/react-query"
+import { Loader } from "../loader"
 
-export function ListDetails({entity, loading}: {entity: ListType & { participant?: ParticipantSelectType }, loading: boolean}) {
+export function ListDetails({entity}: {entity: ListType & { participant?: ParticipantSelectType }}) {
     const navigate = useNavigate()
     const [ideaLoading, setIdeaLoading] = useState<null|number>(null)
     const [newIdea, setNewIdea] = useState<boolean>(false)
     const [editingIdea, setEditingIdea] = useState<number|null>(null)
     const store = useAppStore()
+    const {user} = useAuth()
     const participant = useMemo(() => entity.participant, [entity.participant])
+    const [participantLoading, setParticipantLoading] = useState<null|number>(null)
     const participationDialog = useDialog()
     const [autoBook, setAutoBook] = useState<number|undefined>(undefined)
-    const queryClient = useQueryClient()
     const privacy = useMemo(() => !store.disabledListPrivacy.includes(entity?.id || ""), [store.disabledListPrivacy])
     const {dialogProps, triggerProps} = useDialog()
+    const router = useRouter()
 
     const [deleteLoading, setDeleteLoading] = useState(false)
     async function handleDelete() {
         setDeleteLoading(true)
         await client.list[":id"].$delete({param: {id: entity.id}})
+        await router.invalidate({ sync: true })
         setDeleteLoading(false)
-        queryClient.invalidateQueries({queryKey: ['lists']})
-        navigate('/')
+        navigate({to: '/'})
     }
 
     async function submitIdeaBook(id: number) {
-        if (!store.user) return
-
         setIdeaLoading(id)
         await client.idea[':id'].book.$post({param: {id: String(id)}})
-        queryClient.invalidateQueries({queryKey: ['list', entity.id]})
+        await router.invalidate({ sync: true })
+        setIdeaLoading(null)
     }
 
     function handleIdeaBook(id: number) {
@@ -64,39 +66,36 @@ export function ListDetails({entity, loading}: {entity: ListType & { participant
     }
 
     async function handleIdeaUnbook(id: number) {
-        if (!store.user) return
-
         setIdeaLoading(id)
         await client.idea[':id'].unbook.$post({param: {id: String(id)}})
-        queryClient.invalidateQueries({queryKey: ['list', entity.id]})
+        await router.invalidate({ sync: true })
+        setIdeaLoading(null)
     }
 
     async function handleParticipantSelect(id: number) {
+        setParticipantLoading(id)
         await client.list[':id'].participate.$post({param: {id: entity.id}, json: {id}})
-        queryClient.invalidateQueries({queryKey: ['list', entity.id]})
+        await router.invalidate({ sync: true })
+        setParticipantLoading(null)
         participationDialog.close()
     } 
 
     async function handleIdeaAdd(idea: IdeaInsertType) {
-        if (!store.user) return
-
         await client.list[':id'].idea.$post({param: {id: entity.id}, json: {color: pickValue(availableColors), ...idea, }})
-        await queryClient.invalidateQueries({queryKey: ['list', entity.id]})
+        await router.invalidate({ sync: true })
         setNewIdea(false)
     }
 
     async function handleIdeaEdit(idea: IdeaType) {
-        if (!store.user) return
-
         await client.list[":list"].idea[":idea"].$post({param: {list: entity.id, idea: String(idea.id)}, json: idea})
-        await queryClient.invalidateQueries({queryKey: ['list', entity.id]})
+        await router.invalidate({ sync: true })
         setEditingIdea(null)
     }
 
     async function handleIdeaDelete(id: IdeaSelectType['id']) {
         setIdeaLoading(id)
         await client.list[":list"].idea[":idea"].$delete({param: {list: entity.id, idea: String(id)}})
-        await queryClient.invalidateQueries({queryKey: ['list', entity.id]})
+        await router.invalidate({ sync: true })
         setIdeaLoading(null)
     }
 
@@ -107,16 +106,10 @@ export function ListDetails({entity, loading}: {entity: ListType & { participant
         }
     }, [autoBook, participant])
 
-    useEffect(() => {
-        if (!loading && ideaLoading !== null) {
-            setIdeaLoading(null)
-        }
-    }, [loading])
-
     return <div className="space-y-6">
         <div className="flex gap-2 items-center">
-            <Title variant={"h1"} className="mr-2">{entity.name} {loading}</Title>
-            {store.user?.id === entity.authorId && <>
+            <Title variant={"h1"} className="mr-2">{entity.name}</Title>
+            {user?.id === entity.authorId && <>
                 <ResponsiveDropdownMenu>
                     <ResponsiveDropdownMenuTrigger render={<Button size="icon-sm" variant="outline"/>} >
                         <LucideEllipsisVertical/>
@@ -124,7 +117,7 @@ export function ListDetails({entity, loading}: {entity: ListType & { participant
                     <ResponsiveDropdownMenuContent>
                         {privacy && <ResponsiveDropdownMenuItem onClick={() => store.saveDisabledPrivacy(entity.id)}><LucideEye/>Voir les participations</ResponsiveDropdownMenuItem>}
                         {!privacy && <ResponsiveDropdownMenuItem onClick={() => store.resetPrivacy(entity.id)}><LucideEyeOff/>Cacher les participations</ResponsiveDropdownMenuItem>}
-                        <ResponsiveDropdownMenuItem render={<Link to={`/list/${entity.id}/edit`}/>}><LucidePencil/>Modifier</ResponsiveDropdownMenuItem>
+                        <ResponsiveDropdownMenuItem render={<Link to={"/list/$id/edit"} params={{ id: entity.id }}/>}><LucidePencil/>Modifier</ResponsiveDropdownMenuItem>
                         <ResponsiveDropdownMenuItem variant="destructive" {...triggerProps}>
                             <LucideTrash/>Supprimer
                         </ResponsiveDropdownMenuItem>
@@ -139,14 +132,14 @@ export function ListDetails({entity, loading}: {entity: ListType & { participant
                         <p>Vous êtes sur le point de supprimer une liste qui possède {entity.ideas.length} idée(s) et {entity.participants.length} participant(s). En êtes-vous sûr ?</p>
                         <DialogFooter>
                             <DialogClose render={<Button variant='ghost'/>}>Annuler</DialogClose>
-                            <Button variant={"destructive"} onClick={handleDelete} disabled={deleteLoading}>{deleteLoading && <Spinner/>}Supprimer la liste</Button>
+                            <Button variant={"destructive"} onClick={handleDelete} disabled={deleteLoading}><Loader loading={deleteLoading}/>Supprimer la liste</Button>
                         </DialogFooter>
                     </DialogContent>
                 </Dialog>
             </>}
         </div>
         <div className="relative">
-            <div className={cn("space-y-6 transition-all", entity.authorId === store.user?.id && privacy && "blur-xl")}>
+            <div className={cn("space-y-6 transition-all", entity.authorId === user?.id && privacy && "blur-xl")}>
                 <div className="flex items-center gap-2">
                     {participant && <p className="text-muted-foreground text-sm">Vous participez à cette liste en tant que {participant.name}.</p>}
                     {!participant && <p className="text-muted-foreground text-sm">Vous ne participez pas encore à cette liste.</p>}
@@ -157,12 +150,13 @@ export function ListDetails({entity, loading}: {entity: ListType & { participant
                         <IdeaForm 
                             key={`idea-${idea.id}-edit`}
                             entity={idea} 
-                            onSubmit={(values) => handleIdeaEdit(values)} 
+                            onSubmit={handleIdeaEdit} 
                             onCancel={() => setEditingIdea(null)}
                         /> :
                         <IdeaTeaser 
                             key={`idea-${idea.id}-teaser`}
                             entity={idea}
+                            loading={ideaLoading === idea.id}
                             participant={participant}
                             onEdit={() => setEditingIdea(idea.id)}
                             onDelete={() => handleIdeaDelete(idea.id)}
@@ -176,7 +170,7 @@ export function ListDetails({entity, loading}: {entity: ListType & { participant
                     {entity.allowIdeaProposal && newIdea && <IdeaForm onSubmit={handleIdeaAdd} onCancel={() => setNewIdea(false)}/>}
                 </div>
             </div>
-            <div className={cn("absolute size-full inset-0 flex items-center justify-center transition-all opacity-0 pointer-events-none", entity.authorId === store.user?.id && privacy && "opacity-100 pointer-events-auto")}>
+            <div className={cn("absolute size-full inset-0 flex items-center justify-center transition-all opacity-0 pointer-events-none", entity.authorId === user?.id && privacy && "opacity-100 pointer-events-auto")}>
                 <Card className="w-full max-w-md">
                     <CardHeader>
                         <CardTitle>Attention!</CardTitle>
@@ -195,17 +189,28 @@ export function ListDetails({entity, loading}: {entity: ListType & { participant
                     <DialogTitle>Qui es-tu ?</DialogTitle>
                     <DialogDescription>Trouve ton nom dans la liste ci-dessous</DialogDescription>
                 </DialogHeader>
-                <div className="flex gap-2 flex-wrap">{entity.participants.map(({id, name}) => <Button key={id} variant={participant?.id === id ? "default" : "outline"} onClick={() => handleParticipantSelect(id)}>{name}</Button>)}</div>
+                <div className="flex gap-2 flex-wrap items-center">
+                    {entity.participants.map(({id, name}) => <Button 
+                        key={id} 
+                        variant={participant?.id === id ? "default" : "outline"} 
+                        onClick={() => handleParticipantSelect(id)} 
+                        disabled={participantLoading !== null}
+                    >
+                        <Loader loading={participantLoading === id}/>
+                        {name}
+                    </Button>)}
+                </div>
             </DialogContent>
         </Dialog>
     </div>
 }
 
 export function ListTeaser({entity}: {entity: ListType}) {
-    const queryClient = useQueryClient()
-    const {user} = useAppStore()
+    const {user} = useAuth()
     const [loading, setLoading] = useState(false)
     const {triggerProps, dialogProps} = useDialog()
+    const listLink = `/list/${entity.id}`
+    const queryClient = useQueryClient()
 
     async function handleDelete() {
         setLoading(true)
@@ -222,33 +227,35 @@ export function ListTeaser({entity}: {entity: ListType}) {
                 <span className="block">{entity.ideas.length} idées</span>
             </ItemDescription>
         </ItemContent>
-        {user?.id === entity.authorId && <ItemActions className="self-start relative z-1">
-            <ResponsiveDropdownMenu>
-                <ResponsiveDropdownMenuTrigger render={<Button size="icon-sm" variant="outline"/>} >
-                    <LucideEllipsisVertical/>
-                </ResponsiveDropdownMenuTrigger>
-                <ResponsiveDropdownMenuContent>
-                    <ResponsiveDropdownMenuItem render={<Link to={`/list/${entity.id}/edit`}/>}><LucidePencil/>Modifier</ResponsiveDropdownMenuItem>
-                    <ResponsiveDropdownMenuItem variant="destructive" {...triggerProps}>
-                        <LucideTrash/>Supprimer
-                    </ResponsiveDropdownMenuItem>
-                </ResponsiveDropdownMenuContent>
-            </ResponsiveDropdownMenu>
-            <Dialog {...dialogProps}>
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>Supprimer {entity.name}</DialogTitle>
-                        <DialogDescription>Attention, cette action est irréversible</DialogDescription>
-                    </DialogHeader>
-                    <p>Vous êtes sur le point de supprimer une liste qui possède {entity.ideas.length} idée(s) et {entity.participants.length} participant(s). En êtes-vous sûr ?</p>
-                    <DialogFooter>
-                        <DialogClose render={<Button variant='ghost'/>}>Annuler</DialogClose>
-                        <Button variant={"destructive"} onClick={handleDelete} disabled={loading}>{loading && <Spinner/>}Supprimer la liste</Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
-        </ItemActions>}
-        <Link to={`/list/${entity.id}`} className="absolute inset-0"/>
+        <ItemActions className="self-start relative z-1">
+            {user?.id === entity.authorId && <>
+                <ResponsiveDropdownMenu>
+                    <ResponsiveDropdownMenuTrigger render={<Button size="icon-sm" variant="outline"/>} >
+                        <LucideEllipsisVertical/>
+                    </ResponsiveDropdownMenuTrigger>
+                    <ResponsiveDropdownMenuContent>
+                        <ResponsiveDropdownMenuItem render={<Link to={"/list/$id/edit"} params={{ id: entity.id }}/>}><LucidePencil/>Modifier</ResponsiveDropdownMenuItem>
+                        <ResponsiveDropdownMenuItem variant="destructive" {...triggerProps}>
+                            <LucideTrash/>Supprimer
+                        </ResponsiveDropdownMenuItem>
+                    </ResponsiveDropdownMenuContent>
+                </ResponsiveDropdownMenu>
+                <Dialog {...dialogProps}>
+                    <DialogContent>
+                        <DialogHeader>
+                            <DialogTitle>Supprimer {entity.name}</DialogTitle>
+                            <DialogDescription>Attention, cette action est irréversible</DialogDescription>
+                        </DialogHeader>
+                        <p>Vous êtes sur le point de supprimer une liste qui possède {entity.ideas.length} idée(s) et {entity.participants.length} participant(s). En êtes-vous sûr ?</p>
+                        <DialogFooter>
+                            <DialogClose render={<Button variant='ghost' disabled={loading}/>}>Annuler</DialogClose>
+                            <Button variant={"destructive"} onClick={handleDelete} disabled={loading}><Loader loading={loading}/>Supprimer la liste</Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
+            </>}
+        </ItemActions>
+        <Link to={listLink} className="absolute inset-0"/>
     </Item>
 }
 
@@ -290,6 +297,7 @@ export function ListForm({entity}: {entity?: ListEditionType}) {
     const {user, disabledListPrivacy, resetPrivacy, saveDisabledPrivacy} = useAppStore()
     const privacy = useMemo(() => !disabledListPrivacy.includes(entity?.id || ""), [disabledListPrivacy])
     const [values, setValues] = useState<ListEditionType|null>(entity ?? null)
+    const router = useRouter()
     if (!user) return
 
     const {
@@ -338,14 +346,14 @@ export function ListForm({entity}: {entity?: ListEditionType}) {
     
             if (response.ok) {
                 const list = await response.json()
-                navigate(`/list/${list.id}`)
+                navigate({to: '/list/$id', params: {id: list.id}})
             }
         } else {
             const response = await client.list.$post({json: listData})
     
             if (response.ok) {
                 const list = await response.json()
-                navigate(`/list/${list.id}`)
+                navigate({to: '/list/$id', params: {id: list.id}})
             }
         }
 
@@ -353,8 +361,8 @@ export function ListForm({entity}: {entity?: ListEditionType}) {
     }
 
     const formActions = <>
-        <Button variant={"ghost"} render={<Link to='/'/>} nativeButton={false}>Annuler</Button>
-        <Button type="submit" disabled={loading}>{loading && <Spinner/>}{entity ? "Enregistrer la liste" : "Créer la liste"}</Button>
+        <Button variant={"ghost"} render={<Link to={entity?.id ? `/list/$id` : '/'} params={{id: entity?.id}}/>} nativeButton={false}>Annuler</Button>
+        <Button type="submit" disabled={loading}><Loader loading={loading}/>{entity ? "Enregistrer la liste" : "Créer la liste"}</Button>
     </>
 
     return <form onSubmit={handleSubmit(onSubmit)} className="grid md:grid-cols-[30ch_1fr] gap-6">

@@ -1,30 +1,9 @@
-import { ThemeProvider } from 'next-themes'
-import { RouterProvider } from 'react-router'
 import { router } from './router'
-import { useAuth } from '@/hooks/auth'
-import { QueryClient, QueryClientProvider } from 'react-query'
-import { TooltipProvider } from './components/ui/tooltip'
-import { useAppStore } from './store'
+import { useAuth } from './auth'
+import { RouterProvider } from '@tanstack/react-router'
 
-const queryClient = new QueryClient()
+export function App() {
+  const auth = useAuth()
 
-function App() {
-  const {user} = useAppStore()
-  useAuth()
-
-  return <div>
-    <QueryClientProvider client={queryClient}>
-      <ThemeProvider 
-        attribute="class"
-        defaultTheme="system"
-        enableSystem
-      >
-        <TooltipProvider>
-          {user && <RouterProvider router={router}/>}
-        </TooltipProvider>
-      </ThemeProvider>
-    </QueryClientProvider>
-  </div>
+  return <RouterProvider router={router} context={{ auth }} />
 }
-
-export default App

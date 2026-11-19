@@ -25,9 +25,9 @@ export function ResponsiveDropdownMenuContent(props:  ComponentProps<typeof Draw
     const context = useContext(ResponsiveDropdownContext)
     return context.display === 'drawer' ? 
         <DrawerContent {...props as ComponentProps<typeof DrawerContent>}>
-            <div className={cn("grid p-2", props.className)}>{props.children}</div>
+            <div className={cn("grid p-2 gap-1", props.className)}>{props.children}</div>
         </DrawerContent> : 
-        <DropdownMenuContent {...props} className={cn("w-auto grid p-2", props.className)}/>
+        <DropdownMenuContent {...props} className={cn("w-auto grid p-2 gap-1", props.className)}/>
 }
 
 export function ResponsiveDropdownMenuItem(props: ComponentProps<typeof Button>) {

@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState, type PropsWithChildren } from "react";
 import { authClient } from "./api/auth-client";
-import type { UserType } from "api/types";
 import { queryClient } from "./api/query";
+import type { UserType } from "api/types";
 
 
 const AuthContext = createContext<{user: UserType|null}>({user: null})

@@ -43,6 +43,16 @@ jobs:
           tags: |
             ghcr.io/jonabricot/maliste/web:latest
             ghcr.io/jonabricot/maliste/web:${{ github.sha }}
+      
+      - name: Build and push ADMIN docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          target: admin
+          push: true
+          tags: |
+            ghcr.io/jonabricot/maliste/admin:latest
+            ghcr.io/jonabricot/maliste/admin:${{ github.sha }}
 
   # deploy:
   #   runs-on: ubuntu-latest

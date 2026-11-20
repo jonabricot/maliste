@@ -19,11 +19,27 @@ services:
     ports: 
       - 3001:3001
     env_file: .env.local
+    environment:
+      - ASSET_DIR=/prod/web/dist
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.web.rule=Host(`maliste.les-bouzous.fr`)"
       - "traefik.http.routers.web.entrypoints=websecure"
       - "traefik.http.routers.web.tls.certresolver=mytlschallenge"
+  
+  admin: 
+    container_name: maliste-admin
+    image: ghcr.io/jonabricot/maliste/admin:latest
+    ports: 
+      - 3002:3002
+    env_file: .env.local
+    environment:
+      - ASSET_DIR=/prod/admin/dist
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.admin.rule=Host(`admin.maliste.les-bouzous.fr`)"
+      - "traefik.http.routers.admin.entrypoints=websecure"
+      - "traefik.http.routers.admin.tls.certresolver=mytlschallenge"
 
   db:
     container_name: maliste-db

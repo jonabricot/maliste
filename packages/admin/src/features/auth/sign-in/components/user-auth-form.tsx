@@ -57,9 +57,12 @@ export function UserAuthForm({
     console.log(login)
 
     try {
+      console.log('caca')
       await login?.(data)
-      const targetPath = redirectTo || '/'
-      navigate({ to: targetPath, replace: true })
+      console.log('coucou')
+      const targetPath = redirectTo ?? '/'
+      console.log(targetPath)
+      await navigate({ to: targetPath, replace: true,  })
     } catch (e) {
       console.error(e)
     }

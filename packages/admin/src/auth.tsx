@@ -22,9 +22,8 @@ export function AuthProvider({ children }: PropsWithChildren) {
   const [hydrated, setHydrated] = useState(false)
 
   async function updateUser() {
-    const user = await provideUser()
-    if (user) setUser(user)
-    else setUser(null)
+    queryClient.invalidateQueries({queryKey: ['session']})
+    setUser(await provideUser())
   }
 
   useEffect(() => {
@@ -35,7 +34,6 @@ export function AuthProvider({ children }: PropsWithChildren) {
   }, [])
 
   async function login(...parameters: Parameters<typeof authClient.signIn.email>) {
-    console.log('login')
     const response = await authClient.signIn.email(...parameters)
     if (response.data) await updateUser()
     return response
@@ -64,11 +62,6 @@ async function provideUser() {
     const session = await queryClient.query({ queryKey: ['session'], queryFn: () => authClient.getSession() })
     if (session && session.data && session.data.user) {
         return session.data.user as unknown as UserType
-    }
-
-    const anonymous = await authClient.signIn.anonymous()
-    if (anonymous.data) {
-        return anonymous.data.user as unknown as UserType
     }
 
     return null
